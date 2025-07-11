@@ -52,7 +52,7 @@ Descarga: Ve al sitio de GlassFish: [https://glassfish.org/download](https://gla
 
 Instalación:
 
-* Descomprime el archivo descargado en una ubicación de tu disco donde tengas permisos de escritura y no haya espacios en el nombre de la carpeta (ej. C:\glassfish7 en Windows, o \~/glassfish7 en Linux/macOS).
+* Descomprime el archivo descargado en una ubicación de tu disco donde tengas permisos de escritura y no haya espacios en el nombre de la carpeta (ej. `C:\glassfish7` en Windows, o `~/glassfish7` en Linux/macOS).
 * ¡Importante! Anota esta ruta, la usaremos más adelante.
 
 ### 5. Apache Maven (Sistema de Gestión de Proyectos)
@@ -79,3 +79,103 @@ Debería mostrar la versión de Maven.
 ### 6. Integración del Servidor GlassFish en el IDE
 
 Ahora que tienes todos los componentes, vamos a integrar GlassFish en tu IDE para facilitar el desarrollo y despliegue.
+
+**Para Eclipse:**
+1. Ir a la opción Help > Marketplace y buscar "GlassFish". De la lista que aparece, seleccionar "OmniFish" y hacer clic en "Install". Esperar que termine la instalación. Reiniciar el IDE si es necesario.
+2. Ve a Window > Show View > Servers (si no lo ves, ve a Window > Show View > Other... > Server > Servers).
+3. En la vista Servers, haz clic derecho y selecciona New > Server.
+4. Expande Eclipse Foundation (o GlassFish) y selecciona GlassFish Tools. Luego haz clic en Next.
+5. En la siguiente pantalla, navega hasta la carpeta donde descomprimiste GlassFish (ej. `C:\glassfish7`). Haz clic en Finish.
+6. Una vez añadido, puedes iniciar GlassFish desde la vista Servers haciendo clic derecho sobre él y seleccionando Start.
+
+**Para NetBeans:**
+1. Ve a Services (pestaña en la ventana izquierda, si no la ves, Window > Services). 
+2. Haz clic derecho en Servers y selecciona Add Server....
+3. Elige GlassFish Server y haz clic en Next.
+4. Navega hasta la carpeta donde descomprimiste GlassFish (ej. C:\glassfish7).
+5. Sigue los pasos, define el nombre de usuario y contraseña si es necesario (el predeterminado es admin sin contraseña para GlassFish 7), y haz clic en Finish.
+6. Para iniciar GlassFish, haz clic derecho sobre el servidor en la pestaña Services y selecciona Start.
+
+### 7. Creación de Tu Primer Proyecto "Hello World" con Jakarta EE
+
+Ahora que todo está configurado, crearemos un proyecto web simple.
+
+**Usando Maven Archetype (Recomendado para empezar, independientemente del IDE):**
+
+Abre tu terminal/Símbolo del sistema y ejecuta el siguiente comando Maven. Asegúrate de reemplazar `com.tuempresa.proyecto` con el nombre de tu paquete base (ej. `com.miempresa.app`) y `mi-proyecto` con el nombre que quieras para tu proyecto:
+
+**En macOS,Linux:**
+```shell
+mvn archetype:generate \
+  -DarchetypeGroupId="org.eclipse.starter" \
+  -DarchetypeArtifactId="jakarta-starter" \
+  -DarchetypeVersion="2.6.0" \
+  -DjakartaVersion="11" \
+  -DgroupId="com.tuempresa.proyecto" \
+  -DartifactId="mi-proyecto" \
+  -Dpackage="com.tuempresa.proyecto" \
+  -DinteractiveMode=false
+  
+```
+
+**En Windows (con PowerShell)**
+```powershell
+mvn archetype:generate `
+  -DarchetypeGroupId="org.eclipse.starter" `
+  -DarchetypeArtifactId="jakarta-starter" `
+  -DarchetypeVersion="2.6.0" `
+  -DjakartaVersion="11" `
+  -DgroupId="com.tuempresa.proyecto" `
+  -DartifactId="mi-proyecto" `
+  -Dpackage="com.tuempresa.proyecto" `
+  -DinteractiveMode=false
+  
+ ```
+
+Este comando creará una carpeta `mi-proyecto`  con la estructura básica de un proyecto web Jakarta EE.
+
+**Importar el Proyecto a tu IDE:**
+
+*Eclipse:*
+1.  Ve a File > Import....
+2. Selecciona Maven > Existing Maven Projects.
+3.  Navega hasta la carpeta `mi-proyecto` que Maven creó y selecciona esa carpeta.
+4. Haz clic en Finish.
+
+*NetBeans:*
+1. Ve a File > Open Project....
+2. Navega hasta la carpeta `mi-proyecto` y selecciona el archivo `pom.xml`.
+3. Haz clic en Open Project.
+
+### 8. Desplegar y Ejecutar "Hello World" en GlassFish
+
+Una vez que el proyecto esté importado, es hora de desplegarlo en GlassFish.
+
+**En Eclipse:**
+1. En la vista Servers, haz clic derecho en tu servidor GlassFish y selecciona Add and Remove....
+2. Selecciona tu proyecto mi-proyecto-pm en la lista de la izquierda y haz clic en Add >.
+3. Haz clic en Finish. Eclipse desplegará automáticamente la aplicación.
+4. Abre un navegador web y ve a http://localhost:8080/mi-proyecto/rest/hello. Deberías ver un mensaje:
+ ```json
+{
+  "hello": "world"
+}
+``` 
+
+**En NetBeans:**
+1. Haz clic derecho en tu proyecto `mi-proyecto` en la ventana Projects.
+2. Selecciona Run. NetBeans desplegará el proyecto en el servidor GlassFish que configuraste y abrirá la URL en tu navegador.
+3. Abre un navegador web y ve a http://localhost:8080/mi-proyecto/rest/hello. Deberías ver un mensaje:
+ ```json
+{
+  "hello": "world"
+}
+``` 
+---
+¡Felicidades! Has configurado tu entorno completo y has desplegado tu primera aplicación Jakarta EE en GlassFish. Este es un gran paso.
+
+Si encuentras algún problema en el camino, no dudes en preguntar.
+
+Mañana, en el Día 2, nos sumergiremos en el Diseño de Entidades y JPA Básico para nuestro Sistema de Gestión de Proyectos.
+
+¿Todo bien hasta ahora? ¿Pudiste ver el "Hello, World!"?
