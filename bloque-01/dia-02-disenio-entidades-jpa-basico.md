@@ -1,0 +1,375 @@
+# Día 2: Diseño de Entidades y JPA Básico
+
+Hoy nos centraremos en **Jakarta Persistence API (JPA)**, el estándar de Jakarta EE para la persistencia de objetos Java en bases de datos relacionales. Aprenderemos a diseñar nuestras entidades Java que representarán las tablas de nuestra base de datos y a configurarlas para que JPA pueda gestionarlas.
+
+## 1. Conceptos Clave de JPA
+
+Antes de empezar, un repaso rápido:
+
+- **Entidad (Entity)**: Una clase Java simple que representa una tabla en la base de datos. Cada instancia de la clase corresponde a una fila en esa tabla.
+- **EntityManager**: La interfaz central de JPA para interactuar con la base de datos. Se usa para persistir, actualizar, eliminar y buscar entidades.
+- **Unidad de Persistencia (Persistence Unit)**: Define un conjunto de clases de entidad y la configuración de conexión a la base de datos que el EntityManager usará. Se configura en el archivo `persistence.xml`.
+
+## 2. Configuración de la Base de Datos
+
+Para este tutorial, usaremos una base de datos embebida como Derby o H2 para simplificar la configuración inicial. GlassFish ya tiene soporte integrado para Derby.
+
+### 2.1. Crear un JDBC Realm en GlassFish (Para facilidad de demo)
+Aunque más adelante conectaremos nuestra aplicación a un DataSource real, para empezar rápidamente, podemos usar un JDBC Realm que GlassFish puede auto-configurar con Derby.
+
+1. Abre la consola de administración de GlassFish en tu navegador: http://localhost:4848 (usuario: `admin`, contraseña: vacía por defecto).
+2. En el panel de navegación izquierdo, ve a **Configurations** > **server-config** > **Security** > **Realms**.
+3. Haz clic en el botón **New....**
+4. Configura el Realm:
+   - **Name**: `pmRealm` (o el nombre que prefieras)
+   - **Class Name**: `com.sun.enterprise.security.auth.realm.jdbc.JDBCRealm`
+   - En **JAAS Context**, escribe: `jdbcRealm`
+   - En **Datasource JNDI Name**, escribe: `jdbc/__default` (este es el pool de conexiones Derby predeterminado de GlassFish)
+   - En **Table Name**, escribe: `USERS` (esta tabla la crearemos nosotros para usuarios)
+   - En **User Name Column**, escribe: `USERNAME`
+   - En **Password Column**, escribe: `PASSWORD`
+   - En **Group Table Name**, escribe: `USER_GROUPS`
+   - En **Principal's Group Field**, escribe: `GROUPNAME`
+5. Haz clic en **OK** 
+
+### 2.2. Opcional: Configurar un Pool de Conexiones y JDBC Resource
+
+Para una configuración más controlada, podemos crear nuestro propio pool y recurso JDBC.
+
+1. En la consola de GlassFish, ve a **JDBC** > **JDBC Connection Pools**.
+
+2. Haz clic en **New....**
+    - **Pool Name**: `pm_pool`
+    -  **Type**: `javax.sql.DataSource`
+    - **Database Driver Vendor**: `Derby` (o `JavaDB` que es lo mismo).
+    - Haz clic en **Next**.
+3.  En la siguiente pantalla, confirma las propiedades. Por defecto, Derby ya está configurado.
+    - Asegúrate de que `Database Name` sea `sun-appserver-samples` o crea uno nuevo (ej. `pmdb`). Si creas uno nuevo, añade la propiedad `create` con valor `true` para que se cree automáticamente la primera vez.
+    - Haz clic en **Finish**.
+4. Después de crear el pool, selecciónalo y haz clic en **Ping** para verificar la conexión.
+5.  Ahora, ve a **JDBC** > **JDBC Resources**.
+6.  Haz clic en **New....**
+    - **JNDI Name**: `jdbc/pmdb` (este será el nombre que usará nuestra aplicación para encontrar el DataSource).
+    - **Pool Name**: Selecciona `pm_pool`.
+    - Haz clic en **OK**.
+
+## 3. El Archivo `persistence.xml`
+
+Este archivo es crucial para JPA. Define cómo tus entidades se mapean a la base de datos.
+
+1. Crea la carpeta `META-INF` dentro de `src/main/resources` de tu proyecto.
+2. Dentro de `src/main/resources/META-INF`, crea un archivo llamado `persistence.xml`.
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence version="3.0"
+             xmlns="https://jakarta.ee/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence https://jakarta.ee/xml/ns/persistence/persistence_3_0.xsd">
+
+    <persistence-unit name="pm-pu" transaction-type="JTA">
+        <jta-data-source>jdbc/pmdb</jta-data-source> <properties>
+            <property name="jakarta.persistence.schema-generation.database.action" value="drop-and-create"/>
+            <property name="jakarta.persistence.sql-load-script-source" value="META-INF/sql/create_users.sql"/>
+            <property name="eclipselink.logging.level" value="FINE"/>
+            <property name="eclipselink.logging.parameters" value="true"/>
+            <property name="eclipselink.ddl-generation.output-mode" value="database"/>
+        </properties>
+    </persistence-unit>
+
+</persistence>
+```
+
+**Explicación de las propiedades clave:**
+- `persistence-unit name="pm-pu"`: Nombre de nuestra unidad de persistencia. Lo usaremos para inyectar el `EntityManager`.
+- `transaction-type="JTA"`: Indica que usaremos transacciones gestionadas por el contenedor (Jakarta Transactions API), lo cual es lo común en Jakarta EE.
+- `jta-data-source>jdbc/pmdb</jta-data-source>`: Especifica el JNDI Name de la fuente de datos (DataSource) que GlassFish nos proporciona. **Asegúrate de que este JNDI Name coincida con el que configuraste en GlassFish**.
+- `jakarta.persistence.schema-generation.database.action`: Controla cómo JPA interactúa con el esquema de la base de datos.
+    - `drop-and-create`: Borra todas las tablas existentes y las vuelve a crear cada vez que se despliega la aplicación. **Útil para desarrollo, ¡nunca en producción!**
+    - `create`: Crea las tablas si no existen.
+    - `none`: No hace nada con el esquema (espera que las tablas ya existan).
+- `jakarta.persistence.sql-load-script-source`: Especifica un archivo SQL para ejecutar después de generar el esquema. Lo usaremos para insertar usuarios iniciales para el realm de seguridad.
+- `eclipselink.logging.level`: Nivel de log para EclipseLink (la implementación de JPA de GlassFish). `FINE` muestra las sentencias SQL generadas.
+
+## 4. Creación del Script SQL Inicial
+
+Crea la carpeta `sql` dentro de `src/main/resources/META-INF/`. Dentro de `src/main/resources/META-INF/sql/`, crea un archivo llamado `create_users.sql`.
+
+```sql
+-- create_users.sql
+CREATE TABLE USERS (
+    USERNAME VARCHAR(50) PRIMARY KEY,
+    PASSWORD VARCHAR(50)
+);
+
+CREATE TABLE USER_GROUPS (
+    USERNAME VARCHAR(50),
+    GROUPNAME VARCHAR(50),
+    PRIMARY KEY (USERNAME, GROUPNAME),
+    FOREIGN KEY (USERNAME) REFERENCES USERS(USERNAME)
+);
+
+-- Insertar usuarios y roles de ejemplo
+INSERT INTO USERS (USERNAME, PASSWORD) VALUES ('admin', 'admin');
+INSERT INTO USERS (USERNAME, PASSWORD) VALUES ('dev', 'dev');
+INSERT INTO USERS (USERNAME, PASSWORD) VALUES ('manager', 'manager');
+
+INSERT INTO USER_GROUPS (USERNAME, GROUPNAME) VALUES ('admin', 'ADMIN');
+INSERT INTO USER_GROUPS (USERNAME, GROUPNAME) VALUES ('dev', 'DEVELOPER');
+INSERT INTO USER_GROUPS (USERNAME, GROUPNAME) VALUES ('manager', 'MANAGER');
+INSERT INTO USER_GROUPS (USERNAME, GROUPNAME) VALUES ('manager', 'DEVELOPER'); -- Un manager también puede ser developer
+```
+
+Este script creará las tablas `USERS` y `USER_GROUPS` que nuestro `pmRealm` usará para la autenticación, y también insertará algunos usuarios de prueba.
+
+## 5. Diseño de las Entidades del Sistema de Gestión de Proyectos
+
+Ahora, vamos a crear las clases Java que representarán las tablas de nuestra base de datos.
+
+### 5.1. Clase Base `BaseEntity.java` (Opcional, pero recomendado)
+
+Para tener campos comunes como `id` y simplificar futuros desarrollos, podemos crear una clase base abstracta.
+
+Crea un nuevo paquete en `src/main/java`, por ejemplo, `com.tuempresa.proyecto.domain`. Dentro de este paquete, crea `BaseEntity.java`:
+
+```java
+package com.tuempresa.proyecto.domain;
+
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.MappedSuperclass;
+import java.io.Serializable;
+import java.util.Objects;
+
+@MappedSuperclass // Indica que esta clase no es una entidad, pero sus atributos se mapearán en subclases.
+public abstract class BaseEntity implements Serializable {
+
+    @Id // Marca el campo como la clave primaria
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // Estrategia de generación de ID (IDENTITY para DBs que autoincrementan)
+    protected Long id;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    // Métodos equals y hashCode son importantes para la gestión de entidades por JPA
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        BaseEntity that = (BaseEntity) obj;
+        return Objects.equals(id, that.id);
+    }
+}
+```
+
+### 5.2. Entidad Project.java
+
+Esta entidad representará un proyecto en nuestro sistema.
+
+Crea `Project.java` en el mismo paquete `com.tuempresa.proyecto.domain`:
+
+```java
+package com.tuempresa.proyecto.domain;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank; // Para validaciones, lo veremos en el Día 6
+import jakarta.validation.constraints.Size;
+import java.time.LocalDate; // Para fechas, Jakarta EE soporta java.time
+
+@Entity // Marca la clase como una entidad JPA, se mapeará a una tabla llamada 'Project' por defecto
+@Table(name = "PROJECTS") // Opcional: Especifica el nombre de la tabla si es diferente al nombre de la clase
+public class Project extends BaseEntity {
+
+    @NotBlank(message = "El nombre del proyecto no puede estar vacío.")
+    @Size(max = 100, message = "El nombre del proyecto no puede exceder 100 caracteres.")
+    private String name;
+
+    private String description;
+
+    private LocalDate startDate;
+
+    private LocalDate endDate;
+
+    // Constructor vacío (requerido por JPA)
+    public Project() {
+    }
+
+    // Constructor con parámetros (opcional, para conveniencia)
+    public Project(String name, String description, LocalDate startDate, LocalDate endDate) {
+        this.name = name;
+        this.description = description;
+        this.startDate = startDate;
+        this.endDate = endDate;
+    }
+
+    // Getters y Setters
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public LocalDate getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(LocalDate startDate) {
+        this.startDate = startDate;
+    }
+
+    public LocalDate getEndDate() {
+        return LocalDate.class.cast(endDate); // Asegura que endDate sea LocalDate
+    }
+
+    public void setEndDate(LocalDate endDate) {
+        this.endDate = endDate;
+    }
+
+    @Override
+    public String toString() {
+        return "Project{" +
+               "id=" + id +
+               ", name='" + name + '\'' +
+               ", description='" + description + '\'' +
+               ", startDate=" + startDate +
+               ", endDate=" + endDate +
+               '}';
+    }
+}
+```
+
+**Notas importantes:**
+- `@Entity`: Anotación fundamental que le dice a JPA que esta clase es una entidad persistente.
+- `@Table`: Opcional, pero buena práctica para especificar explícitamente el nombre de la tabla.
+- **Campos de Instancia**: Los campos se mapean automáticamente a columnas de la tabla.
+- **Constructores**: JPA requiere un constructor público o protegido sin argumentos. Puedes añadir otros constructores.
+- **Getters y Setters**: Son necesarios para que JPA acceda a los valores de los campos.
+- **@NotBlank** y **@Size**: Estas son anotaciones de Bean Validation, las exploraremos en el Día 6. Por ahora, solo las dejamos ahí.
+
+### 5.3. Entidad `User.java`
+Aunque ya tenemos tablas `USERS` y `USER_GROUPS` para el Realm de seguridad, es buena práctica tener una entidad `User` también para la lógica de negocio de la aplicación.
+
+Crea `User.java` en `com.tuempresa.proyecto.domain`:
+
+```java
+package com.tuempresa.proyecto.domain;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
+@Entity
+@Table(name = "APP_USERS") // Para diferenciarla de la tabla USERS del realm si es necesario
+public class User extends BaseEntity {
+
+    @NotBlank(message = "El nombre de usuario no puede estar vacío.")
+    @Size(max = 50, message = "El nombre de usuario no puede exceder 50 caracteres.")
+    private String username;
+
+    @NotBlank(message = "La contraseña no puede estar vacía.")
+    private String password; // NOTA: En un sistema real, NUNCA almacenar contraseñas en texto plano. Usar hashing.
+
+    @NotBlank(message = "El correo electrónico no puede estar vacío.")
+    @Email(message = "Formato de correo electrónico inválido.")
+    private String email;
+
+    @Size(max = 100, message = "El nombre completo no puede exceder 100 caracteres.")
+    private String fullName;
+
+    public User() {
+    }
+
+    public User(String username, String password, String email, String fullName) {
+        this.username = username;
+        this.password = password;
+        this.email = email;
+        this.fullName = fullName;
+    }
+
+    // Getters y Setters
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+               "id=" + id +
+               ", username='" + username + '\'' +
+               ", email='" + email + '\'' +
+               ", fullName='" + fullName + '\'' +
+               '}';
+    }
+}
+```
+
+## 6. Verificación y Despliegue
+
+1. **Guarda todos los archivos**: `persistence.xml`, `create_users.sql`, `BaseEntity.java`, `Project.java`, `User.java`.
+2. **Re-despliega la aplicación**:
+- **En Eclipse**: Haz clic derecho en tu servidor GlassFish en la vista `Servers` y selecciona `Full Publish` o `Clean` > `Publish`. Asegúrate de que el proyecto `mi-proyecto-pm` esté añadido al servidor.
+- **En NetBeans**: Haz clic derecho en tu proyecto y selecciona `Clean and Build`, luego `Run`.
+
+Cuando la aplicación se despliegue, GlassFish y JPA (EclipseLink) leerán tu `persistence.xml`. Gracias a `drop-and-create`, las tablas `PROJECTS` y `APP_USERS` deberían crearse automáticamente en la base de datos de Derby. Además, el script `create_users.sql` se ejecutará para crear las tablas `USERS` y `USER_GROUPS` y poblar con datos iniciales para el Realm de seguridad.
+
+Puedes revisar los logs de GlassFish (en la pestaña `Console` de tu IDE o en el archivo `domain.log` dentro de la carpeta `glassfish7/glassfish/domains/domain1/logs`) para ver las sentencias SQL que JPA ha ejecutado. Deberías ver algo como `CREATE TABLE PROJECTS (...)` y `CREATE TABLE APP_USERS (...)`.
+
+---
+
+¡Felicidades! Has configurado JPA, definido tu unidad de persistencia y diseñado tus primeras entidades. Esto sienta las bases para almacenar y gestionar datos en tu Sistema de Gestión de Proyectos.
+
+Mañana, en el Día 3, aprenderemos a realizar operaciones **CRUD básicas** (**Crear**, **Leer**, **Actualizar**, **Borrar**) con estas entidades utilizando el `EntityManager`.
+
+¿Pudiste ver las tablas creadas en los logs de GlassFish? Si tienes alguna duda o problema, házmelo saber.
