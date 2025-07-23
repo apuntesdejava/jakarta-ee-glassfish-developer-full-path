@@ -39,7 +39,7 @@ Recomendación para este tutorial: Si no tienes una preferencia fuerte o si es t
   * Eclipse: Ve a [https://www.eclipse.org/downloads/packages/](https://www.eclipse.org/downloads/packages/) y descarga la versión "Eclipse IDE for Enterprise Java and Web Developers".\
     Descomprime el archivo y ejecuta el ejecutable de Eclipse.
 
-  * Apache NetBeans: Ve a [https://netbeans.apache.org/download/index.html](https://netbeans.apache.org/download/index.html) y descarga la última versión. Descomprime el archivo y ejecuta el ejecutable que está en `bin\netbeans`
+  * Apache NetBeans: Ve a [https://netbeans.apache.org/download/](https://netbeans.apache.org/download/) y descarga la última versión. Descomprime el archivo y ejecuta el ejecutable que está en `bin\netbeans`
 
 ## 4. Servidor de Aplicaciones GlassFish
 
@@ -65,7 +65,7 @@ Descarga: Ve a [https://maven.apache.org/download.cgi](https://maven.apache.org/
 
 Instalación:
 
-* Descomprime el archivo en una ubicación de tu disco (ej. `C:\apache-maven-3.9.10` o `~/apache-maven-3.9.10`).
+* Descomprime el archivo en una ubicación de tu disco (ej. `C:\apache-maven-3.9.11` o `~/apache-maven-3.9.11`).
 * Configuración de Variables de Entorno:
   * Añade la ruta del directorio bin de Maven a la variable de entorno PATH de tu sistema.
   * Crea una variable de entorno `MAVEN_HOME` apuntando al directorio raíz de Maven (donde lo descomprimiste).
@@ -174,7 +174,9 @@ Una vez que el proyecto esté importado, es hora de desplegarlo en GlassFish.
 
 ## 9.Vídeo demostrativo
 
-Repetiremos los pasos en un vídeo para 
+
+[![Watch the video](https://img.youtube.com/vi/hkt4kCL-LiA/default.jpg)](https://youtu.be/hkt4kCL-LiA)
+
 
 ---
 ¡Felicidades! Has configurado tu entorno completo y has desplegado tu primera aplicación Jakarta EE en GlassFish. Este es un gran paso.
