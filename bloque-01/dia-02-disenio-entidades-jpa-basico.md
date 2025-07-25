@@ -62,7 +62,7 @@ Aunque más adelante conectaremos nuestra aplicación a un DataSource real, para
 
 ## 3. Las dependencias para este proyecto
 
-Abramos el archivo `pom.xml` y agreguemos la siguiente dependencia
+Abramos el archivo [`pom.xml`](../source-code/dia-02/project-manager/pom.xml) y agreguemos la siguiente dependencia
 
 ```xml
 <dependency>
@@ -92,7 +92,7 @@ Se verá con más detalle en el día 6.
 Este archivo es crucial para Jakarta Persistence. Define cómo tus entidades se mapean a la base de datos.
 
 1. Crea la carpeta `META-INF` dentro de `src/main/resources` de tu proyecto.
-2. Dentro de `src/main/resources/META-INF`, crea un archivo llamado [`persistence.xml`](../source-code/dia-02/src/main/resources/META-INF/persistence.xml).
+2. Dentro de `src/main/resources/META-INF`, crea un archivo llamado [`persistence.xml`](../source-code/dia-02/project-manager/src/main/resources/META-INF/persistence.xml).
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -127,7 +127,7 @@ Este archivo es crucial para Jakarta Persistence. Define cómo tus entidades se 
 
 ## 5. Creación del Script SQL Inicial
 
-Crea la carpeta `sql` dentro de `src/main/resources/META-INF/`. Dentro de `src/main/resources/META-INF/sql/`, crea un archivo llamado [`create_users.sql`](../source-code/dia-02/src/main/resources/META-INF/sql/create_users.sql).
+Crea la carpeta `sql` dentro de `src/main/resources/META-INF/`. Dentro de `src/main/resources/META-INF/sql/`, crea un archivo llamado [`create_users.sql`](../source-code/dia-02/project-manager/src/main/resources/META-INF/sql/create_users.sql).
 
 ```sql
 -- create_users.sql
@@ -164,7 +164,7 @@ Ahora, vamos a crear las clases Java que representarán las tablas de nuestra ba
 
 Para tener campos comunes como `id` y simplificar futuros desarrollos, podemos crear una clase base abstracta.
 
-Crea un nuevo paquete en `src/main/java`, por ejemplo, `com.tuempresa.proyecto.domain`. Dentro de este paquete, crea [`BaseEntity.java`](../source-code/dia-02/src/main/java/com/tuempresa/proyecto/domain/BaseEntity.java):
+Crea un nuevo paquete en `src/main/java`, por ejemplo, `com.tuempresa.proyecto.domain`. Dentro de este paquete, crea [`BaseEntity.java`](../source-code/dia-02/project-manager/src/main/java/com/tuempresa/proyecto/domain/BaseEntity.java):
 
 ```java
 package com.tuempresa.proyecto.domain;
@@ -211,7 +211,7 @@ public abstract class BaseEntity implements Serializable {
 
 Esta entidad representará un proyecto en nuestro sistema.
 
-Crea [`Project.java`](../source-code/dia-02/src/main/java/com/tuempresa/proyecto/domain/Project.java) en el mismo paquete `com.tuempresa.proyecto.domain`:
+Crea [`Project.java`](../source-code/dia-02/project-manager/src/main/java/com/tuempresa/proyecto/domain/Project.java) en el mismo paquete `com.tuempresa.proyecto.domain`:
 
 ```java
 package com.tuempresa.proyecto.domain;
@@ -305,7 +305,7 @@ public class Project extends BaseEntity {
 ### 6.3. Entidad `User.java`
 Aunque ya tenemos tablas `USERS` y `USER_GROUPS` para el Realm de seguridad, es buena práctica tener una entidad `User` también para la lógica de negocio de la aplicación.
 
-Crea [`User.java`](../source-code/dia-02/src/main/java/com/tuempresa/proyecto/domain/User.java) en `com.tuempresa.proyecto.domain`:
+Crea [`User.java`](../source-code/dia-02/project-manager/src/main/java/com/tuempresa/proyecto/domain/User.java) en `com.tuempresa.proyecto.domain`:
 
 ```java
 package com.tuempresa.proyecto.domain;
@@ -409,6 +409,10 @@ En Windows, con PowerShell, puedes usar este comando
 Deberías ver algo como `Loading application [project-manager] at [/project-manager]` y `project-manager was successfully deployed...`.
 
 ![](https://i.imgur.com/d9URgHP.png)
+
+## Código Fuente
+
+El código fuente del proyecto se puede encontrar aquí: [project-manager](../source-code/dia-02/project-manager)
 
 ---
 
