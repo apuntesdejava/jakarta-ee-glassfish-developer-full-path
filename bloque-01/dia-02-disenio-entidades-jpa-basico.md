@@ -1,13 +1,13 @@
-# Día 2: Diseño de Entidades y JPA Básico
+# Día 2: Diseño de Entidades y Jakarta Persistence (Antes JPA) Básico
 
-Hoy nos centraremos en **Jakarta Persistence API (JPA)**, el estándar de Jakarta EE para la persistencia de objetos Java en bases de datos relacionales. Aprenderemos a diseñar nuestras entidades Java que representarán las tablas de nuestra base de datos y a configurarlas para que JPA pueda gestionarlas.
+Hoy nos centraremos en **Jakarta Persistence**, el estándar de Jakarta EE para la persistencia de objetos Java en bases de datos relacionales. Aprenderemos a diseñar nuestras entidades Java que representarán las tablas de nuestra base de datos y a configurarlas para que Jakarta Persistence pueda gestionarlas.
 
-## 1. Conceptos Clave de JPA
+## 1. Conceptos Clave de Jakarta Persistence (Antes JPA)
 
 Antes de empezar, un repaso rápido:
 
 - **Entidad (Entity)**: Una clase Java simple que representa una tabla en la base de datos. Cada instancia de la clase corresponde a una fila en esa tabla.
-- **EntityManager**: La interfaz central de JPA para interactuar con la base de datos. Se usa para persistir, actualizar, eliminar y buscar entidades.
+- **EntityManager**: La interfaz central de Jakarta Persistence para interactuar con la base de datos. Se usa para persistir, actualizar, eliminar y buscar entidades.
 - **Unidad de Persistencia (Persistence Unit)**: Define un conjunto de clases de entidad y la configuración de conexión a la base de datos que el EntityManager usará. Se configura en el archivo `persistence.xml`.
 
 ## 2. Configuración de la Base de Datos
@@ -55,7 +55,7 @@ Para una configuración más controlada, podemos crear nuestro propio pool y rec
 
 ## 3. El Archivo `persistence.xml`
 
-Este archivo es crucial para JPA. Define cómo tus entidades se mapean a la base de datos.
+Este archivo es crucial para Jakarta Persistence. Define cómo tus entidades se mapean a la base de datos.
 
 1. Crea la carpeta `META-INF` dentro de `src/main/resources` de tu proyecto.
 2. Dentro de `src/main/resources/META-INF`, crea un archivo llamado `persistence.xml`.
@@ -84,12 +84,12 @@ Este archivo es crucial para JPA. Define cómo tus entidades se mapean a la base
 - `persistence-unit name="pm-pu"`: Nombre de nuestra unidad de persistencia. Lo usaremos para inyectar el `EntityManager`.
 - `transaction-type="JTA"`: Indica que usaremos transacciones gestionadas por el contenedor (Jakarta Transactions API), lo cual es lo común en Jakarta EE.
 - `jta-data-source>jdbc/pmdb</jta-data-source>`: Especifica el JNDI Name de la fuente de datos (DataSource) que GlassFish nos proporciona. **Asegúrate de que este JNDI Name coincida con el que configuraste en GlassFish**.
-- `jakarta.persistence.schema-generation.database.action`: Controla cómo JPA interactúa con el esquema de la base de datos.
+- `jakarta.persistence.schema-generation.database.action`: Controla cómo Jakarta Persistence interactúa con el esquema de la base de datos.
     - `drop-and-create`: Borra todas las tablas existentes y las vuelve a crear cada vez que se despliega la aplicación. **Útil para desarrollo, ¡nunca en producción!**
     - `create`: Crea las tablas si no existen.
     - `none`: No hace nada con el esquema (espera que las tablas ya existan).
 - `jakarta.persistence.sql-load-script-source`: Especifica un archivo SQL para ejecutar después de generar el esquema. Lo usaremos para insertar usuarios iniciales para el realm de seguridad.
-- `eclipselink.logging.level`: Nivel de log para EclipseLink (la implementación de JPA de GlassFish). `FINE` muestra las sentencias SQL generadas.
+- `eclipselink.logging.level`: Nivel de log para EclipseLink (la implementación de Jakarta Persistence de GlassFish). `FINE` muestra las sentencias SQL generadas.
 
 ## 4. Creación del Script SQL Inicial
 
@@ -157,7 +157,7 @@ public abstract class BaseEntity implements Serializable {
         this.id = id;
     }
 
-    // Métodos equals y hashCode son importantes para la gestión de entidades por JPA
+    // Métodos equals y hashCode son importantes para la gestión de entidades por Jakarta Persistence
     @Override
     public int hashCode() {
         return Objects.hash(id);
@@ -188,7 +188,7 @@ import jakarta.validation.constraints.NotBlank; // Para validaciones, lo veremos
 import jakarta.validation.constraints.Size;
 import java.time.LocalDate; // Para fechas, Jakarta EE soporta java.time
 
-@Entity // Marca la clase como una entidad JPA, se mapeará a una tabla llamada 'Project' por defecto
+@Entity // Marca la clase como una entidad Jakarta Persistence, se mapeará a una tabla llamada 'Project' por defecto
 @Table(name = "PROJECTS") // Opcional: Especifica el nombre de la tabla si es diferente al nombre de la clase
 public class Project extends BaseEntity {
 
@@ -202,7 +202,7 @@ public class Project extends BaseEntity {
 
     private LocalDate endDate;
 
-    // Constructor vacío (requerido por JPA)
+    // Constructor vacío (requerido por Jakarta Persistence)
     public Project() {
     }
 
@@ -261,11 +261,11 @@ public class Project extends BaseEntity {
 ```
 
 **Notas importantes:**
-- `@Entity`: Anotación fundamental que le dice a JPA que esta clase es una entidad persistente.
+- `@Entity`: Anotación fundamental que le dice a Jakarta Persistence que esta clase es una entidad persistente.
 - `@Table`: Opcional, pero buena práctica para especificar explícitamente el nombre de la tabla.
 - **Campos de Instancia**: Los campos se mapean automáticamente a columnas de la tabla.
-- **Constructores**: JPA requiere un constructor público o protegido sin argumentos. Puedes añadir otros constructores.
-- **Getters y Setters**: Son necesarios para que JPA acceda a los valores de los campos.
+- **Constructores**: Jakarta Persistence requiere un constructor público o protegido sin argumentos. Puedes añadir otros constructores.
+- **Getters y Setters**: Son necesarios para que Jakarta Persistence acceda a los valores de los campos.
 - **@NotBlank** y **@Size**: Estas son anotaciones de Bean Validation, las exploraremos en el Día 6. Por ahora, solo las dejamos ahí.
 
 ### 5.3. Entidad `User.java`
@@ -362,13 +362,13 @@ public class User extends BaseEntity {
 - **En Eclipse**: Haz clic derecho en tu servidor GlassFish en la vista `Servers` y selecciona `Full Publish` o `Clean` > `Publish`. Asegúrate de que el proyecto `mi-proyecto-pm` esté añadido al servidor.
 - **En NetBeans**: Haz clic derecho en tu proyecto y selecciona `Clean and Build`, luego `Run`.
 
-Cuando la aplicación se despliegue, GlassFish y JPA (EclipseLink) leerán tu `persistence.xml`. Gracias a `drop-and-create`, las tablas `PROJECTS` y `APP_USERS` deberían crearse automáticamente en la base de datos de Derby. Además, el script `create_users.sql` se ejecutará para crear las tablas `USERS` y `USER_GROUPS` y poblar con datos iniciales para el Realm de seguridad.
+Cuando la aplicación se despliegue, GlassFish y Jakarta Persistence (EclipseLink) leerán tu `persistence.xml`. Gracias a `drop-and-create`, las tablas `PROJECTS` y `APP_USERS` deberían crearse automáticamente en la base de datos de Derby. Además, el script `create_users.sql` se ejecutará para crear las tablas `USERS` y `USER_GROUPS` y poblar con datos iniciales para el Realm de seguridad.
 
-Puedes revisar los logs de GlassFish (en la pestaña `Console` de tu IDE o en el archivo `domain.log` dentro de la carpeta `glassfish7/glassfish/domains/domain1/logs`) para ver las sentencias SQL que JPA ha ejecutado. Deberías ver algo como `CREATE TABLE PROJECTS (...)` y `CREATE TABLE APP_USERS (...)`.
+Puedes revisar los logs de GlassFish (en la pestaña `Console` de tu IDE o en el archivo `domain.log` dentro de la carpeta `glassfish7/glassfish/domains/domain1/logs`) para ver las sentencias SQL que Jakarta Persistence ha ejecutado. Deberías ver algo como `CREATE TABLE PROJECTS (...)` y `CREATE TABLE APP_USERS (...)`.
 
 ---
 
-¡Felicidades! Has configurado JPA, definido tu unidad de persistencia y diseñado tus primeras entidades. Esto sienta las bases para almacenar y gestionar datos en tu Sistema de Gestión de Proyectos.
+¡Felicidades! Has configurado Jakarta Persistence, definido tu unidad de persistencia y diseñado tus primeras entidades. Esto sienta las bases para almacenar y gestionar datos en tu Sistema de Gestión de Proyectos.
 
 Mañana, en el Día 3, aprenderemos a realizar operaciones **CRUD básicas** (**Crear**, **Leer**, **Actualizar**, **Borrar**) con estas entidades utilizando el `EntityManager`.
 

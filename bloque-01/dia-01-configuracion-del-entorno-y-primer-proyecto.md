@@ -183,6 +183,6 @@ Una vez que el proyecto esté importado, es hora de desplegarlo en GlassFish.
 
 Si encuentras algún problema en el camino, no dudes en preguntar.
 
-Mañana, en el Día 2, nos sumergiremos en el Diseño de Entidades y JPA Básico para nuestro Sistema de Gestión de Proyectos.
+Mañana, en el Día 2, nos sumergiremos en el Diseño de Entidades y Jakarta Persistence Básico para nuestro Sistema de Gestión de Proyectos.
 
 ¿Todo bien hasta ahora? ¿Pudiste ver el "Hello, World!"?
