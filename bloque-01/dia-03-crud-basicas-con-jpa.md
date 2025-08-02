@@ -8,18 +8,18 @@ El `EntityManager` es la interfaz central en Jakarta Persistence para todas las 
 
 Vamos a crear una clase de servicio simple que se encargue de la lógica de negocio básica para nuestra entidad `Project`.
 
-Crea un nuevo paquete en `src/main/java`, por ejemplo, `com.tuempresa.proyecto.service`. Dentro de este paquete, crea una clase `ProjectService.java`:
+Crea un nuevo paquete en `src/main/java`, por ejemplo, `com.tuempresa.proyecto.service`. Dentro de este paquete, crea una clase [`ProjectService.java`](../source-code/dia-03/project-manager/src/main/java/com/tuempresa/proyecto/service/ProjectService.java):
 
 ```java
 package com.tuempresa.proyecto.service;
 
 import com.tuempresa.proyecto.domain.Project;
-import jakarta.ejb.Stateless; // Usaremos EJB Stateless para gestionar transacciones
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import java.util.List;
 
-@Stateless // Indica que esta clase es un EJB Stateless, gestionado por el contenedor
+@ApplicationScoped // Indica que esta clase es un EJB Stateless, gestionado por el contenedor
 public class ProjectService {
 
     @PersistenceContext(unitName = "pm-pu") // Inyecta el EntityManager para nuestra unidad de persistencia
@@ -83,7 +83,7 @@ public class ProjectService {
 
 **Explicación de las Anotaciones Clave**:
 
-- `@Stateless`: Esta anotación convierte la clase `ProjectService` en un **Enterprise Bean sin estado**. Los Enterprise Bean son componentes de servidor que el contenedor Jakarta EE gestiona. `@Stateless` es ideal para servicios de negocio porque son ligeros y pueden ser reutilizados por múltiples clientes de forma concurrente, sin mantener estado entre llamadas.
+- `@ApplicationScoped`: Esta anotación convierte la clase `ProjectService` en un **Enterprise Bean sin estado**. Los Enterprise Bean son componentes de servidor que el contenedor Jakarta EE gestiona. `@Stateless` es ideal para servicios de negocio porque son ligeros y pueden ser reutilizados por múltiples clientes de forma concurrente, sin mantener estado entre llamadas.
 - `@PersistenceContext(unitName = "pm-pu")`: Esta es la joya de la inyección. Le dice al contenedor Jakarta EE que inyecte una instancia de `EntityManager` en la variable `em`.
   - `unitName = "pm-pu"`: Es crucial. Indica a Jakarta Persistence qué unidad de persistencia (definida en `persistence.xml`) debe usar para este `EntityManager`. Asegúrate de que el nombre (`pm-pu`) coincida exactamente con el que definiste en tu `persistence.xml` en el Día 2.
 
@@ -91,7 +91,7 @@ public class ProjectService {
 
 Para verificar rápidamente que nuestras operaciones CRUD funcionan, podemos añadir temporalmente algunos endpoints a nuestro recurso Jakarta RESTful existente del Día 1. En los próximos días, construiremos una interfaz web más robusta.
 
-Crea la clase `ProjectResource.java` en la carpeta `com.tuempresa.proyecto.resources`) e inyectamos  `ProjectService` para exponer algunos métodos.
+Crea la clase [`ProjectResource.java`](../source-code/dia-03/project-manager/src/main/java/com/tuempresa/proyecto/resources/ProjectResource.java) en la carpeta `com.tuempresa.proyecto.resources`) e inyectamos  `ProjectService` para exponer algunos métodos.
 
 ```java
 package com.tuempresa.proyecto.resources;
@@ -199,7 +199,7 @@ public class ProjectResource {
 2. Re-despliega la aplicación en GlassFish desde tu IDE.
 3. Usa una herramienta como **Postman**, **Insomnia**, **HTTPie** o **curl** para probar los endpoints REST. O simplemente tu navegador para los métodos GET.
    - Crear un Proyecto (POST):
-     - URL: http://localhost:8080/mi-proyecto-pm/api/projects
+     - URL: http://localhost:8080/mi-proyecto-pm/rest/projects
      - Método: `POST`
      - Headers: `Content-Type: application/json`
      - Body (raw JSON):
@@ -211,16 +211,16 @@ public class ProjectResource {
              "endDate": "2025-08-24"
           }
        ```
-     -   Opcional, con navegador: http://localhost:8080/mi-proyecto-pm/api/projects/create-test (varias veces para crear algunos)
+     -   Opcional, con navegador: http://localhost:8080/mi-proyecto-pm/rest/projects/create-test (varias veces para crear algunos)
    - Obtener Todos los Proyectos (GET):
-     - URL: http://localhost:8080/mi-proyecto-pm/api/projects/all
+     - URL: http://localhost:8080/mi-proyecto-pm/rest/projects/all
      - Método: `GET`
      - Deberías ver una lista JSON de los proyectos que creaste.
    - Obtener un Proyecto por ID (GET):
-     - URL: http://localhost:8080/mi-proyecto-pm/api/projects/{id_del_proyecto} (reemplaza {id_del_proyecto} con un ID real de tu lista)
+     - URL: http://localhost:8080/mi-proyecto-pm/rest/projects/{id_del_proyecto} (reemplaza {id_del_proyecto} con un ID real de tu lista)
      - Método: `GET`
    - Actualizar un Proyecto (PUT):
-     - URL: http://localhost:8080/mi-proyecto-pm/api/projects/{id_del_proyecto_a_actualizar}
+     - URL: http://localhost:8080/mi-proyecto-pm/rest/projects/{id_del_proyecto_a_actualizar}
      - Método: `PUT`
      - Headers: `Content-Type: application/json`
      - Body (raw JSON):
@@ -233,7 +233,7 @@ public class ProjectResource {
           }
        ```
    - Eliminar un Proyecto (DELETE):
-     - URL: http://localhost:8080/mi-proyecto-pm/api/projects/{id_del_proyecto_a_eliminar}
+     - URL: http://localhost:8080/mi-proyecto-pm/rest/projects/{id_del_proyecto_a_eliminar}
      - Método: `DELETE`
 
 Al realizar estas operaciones, el `EntityManager` gestionará las transacciones con la base de datos a través de nuestro Enterprise Bean `ProjectService`.

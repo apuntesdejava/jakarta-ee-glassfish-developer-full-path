@@ -12,9 +12,39 @@ Antes de empezar, un repaso rápido:
 
 ## 2. Configuración de la Base de Datos
 
-Para este tutorial, usaremos una base de datos embebida como Derby o H2 para simplificar la configuración inicial. GlassFish ya tiene soporte integrado para Derby.
+Para este tutorial, usaremos MariaDB como base de datos. Para iniciar la base de datos de este ejemplo, ejecuta el siguiente `docker-compose.yml` para que tengas toda la configuración necesaria:
 
-### 2.1. Configurar un Pool de Conexiones y JDBC Resource
+- [docker-compose-yml](../source-code/mariadb/docker-compose.yml)
+
+### 2.1 Preparar el Driver JDBC para GlassFish
+
+1. Descargar el Driver JDBC de MariaDB desde esta ubicación: [mariadb-java-client:3.5.4](https://repo1.maven.org/maven2/org/mariadb/jdbc/mariadb-java-client/3.5.4/mariadb-java-client-3.5.4.jar)
+2. Desde una ventana de comandos, entrar a la ubicación de GlassFish, en la carpeta donde está el directorio `bin`
+
+   ![](https://i.imgur.com/r5ex9MD.png)
+3. Iniciar GlassFishc con el siguiente comando:
+   ```powershell
+   .\asadmin start-domain
+   ``` 
+   Y esperar hasta que salga el mensaje `Command start-domain executed successfully.`
+   ![](https://i.imgur.com/9nR8Ju4.png)
+4. Ejecutar el siguiente comando para agregar el driver de MariaDB en GlassFish
+   ```powershell
+   .\asadmin add-library --type common C:\PATH_FROM_JAR\mariadb-java-client-3.5.4.jar
+   ```
+   Donde `PATH_FROM_JAR` es la ubicación donde se encuentra el archivo .jar que ha bajado en el paso 1.
+
+   Al ejecutar el comando, deberá aparecer el siguiente resultado
+  
+   ![](https://i.imgur.com/zv7D2m1.png)
+  
+5. Reiniciar el GlassFish para que acepte los cambios. Para reiniciar, haga los siguientes comandos:
+   ```powershell
+   .\asadmin stop-domain
+   .\asadmin start-domain
+   ```
+
+### 2.2. Configurar un Pool de Conexiones y JDBC Resource
 
 Para una configuración más controlada, podemos crear nuestro propio pool y recurso JDBC.
 
@@ -38,26 +68,6 @@ Para una configuración más controlada, podemos crear nuestro propio pool y rec
     - **JNDI Name**: `jdbc/pmdb` (este será el nombre que usará nuestra aplicación para encontrar el DataSource).
     - **Pool Name**: Selecciona `ProjectManagerPool`.
     - Haz clic en **OK**.
-
-### 2.2. Crear un JDBC Realm en GlassFish (Para facilidad de demo)
-
-Aunque más adelante conectaremos nuestra aplicación a un DataSource real, para empezar rápidamente, podemos usar un JDBC Realm que GlassFish puede autoconfigurar con Derby.
-
-1. Abre la consola de administración de GlassFish en tu navegador: http://localhost:4848 (Si pide credenciales, estas son: usuario: `admin`, contraseña: vacía por defecto).
-2. En el panel de navegación izquierdo, ve a **Configurations** > **server-config** > **Security** > **Realms**.
-3. Haz clic en el botón **New....**
-4. Configura el Realm:
-   - **Name**: `pmRealm` (o el nombre que prefieras)
-   - **Class Name**: `com.sun.enterprise.security.auth.realm.jdbc.JDBCRealm`
-   - En **JAAS Context**, escribe: `jdbcRealm`
-   - En **Datasource JNDI Name**, escribe: `jdbc/pmdb` (este es el pool de conexiones Derby que hemos creado en el paso anterior)
-   - En **User Table**, escribe: `USERS` (esta tabla la crearemos nosotros para usuarios)
-   - En **User Name Column**, escribe: `USERNAME`
-   - En **Password Column**, escribe: `PASSWORD`
-   - En **Group Table**, escribe: `USER_GROUPS`
-   - En **Group Name Column**, escribe: `GROUPNAME`
-5. Haz clic en **OK** 
-
 
 
 ## 3. Las dependencias para este proyecto
@@ -104,7 +114,6 @@ Este archivo es crucial para Jakarta Persistence. Define cómo tus entidades se 
     <persistence-unit name="pm-pu" transaction-type="JTA">
         <jta-data-source>jdbc/pmdb</jta-data-source> <properties>
             <property name="jakarta.persistence.schema-generation.database.action" value="drop-and-create"/>
-            <property name="jakarta.persistence.sql-load-script-source" value="META-INF/sql/create_users.sql"/>
             <property name="eclipselink.logging.level" value="FINE"/>
             <property name="eclipselink.logging.parameters" value="true"/>
             <property name="eclipselink.ddl-generation.output-mode" value="database"/>
@@ -122,45 +131,15 @@ Este archivo es crucial para Jakarta Persistence. Define cómo tus entidades se 
     - `drop-and-create`: Borra todas las tablas existentes y las vuelve a crear cada vez que se despliega la aplicación. **Útil para desarrollo, ¡nunca en producción!**
     - `create`: Crea las tablas si no existen.
     - `none`: No hace nada con el esquema (espera que las tablas ya existan).
-- `jakarta.persistence.sql-load-script-source`: Especifica un archivo SQL para ejecutar después de generar el esquema. Lo usaremos para insertar usuarios iniciales para el realm de seguridad.
 - `eclipselink.logging.level`: Nivel de log para EclipseLink (la implementación de Jakarta Persistence de GlassFish). `FINE` muestra las sentencias SQL generadas.
-
-## 5. Creación del Script SQL Inicial
-
-Crea la carpeta `sql` dentro de `src/main/resources/META-INF/`. Dentro de `src/main/resources/META-INF/sql/`, crea un archivo llamado [`create_users.sql`](../source-code/dia-02/project-manager/src/main/resources/META-INF/sql/create_users.sql).
-
-```sql
--- create_users.sql
-CREATE TABLE USERS (
-    USERNAME VARCHAR(50) PRIMARY KEY,
-    PASSWORD VARCHAR(50)
-);
-
-CREATE TABLE USER_GROUPS (
-    USERNAME VARCHAR(50),
-    GROUPNAME VARCHAR(50),
-    PRIMARY KEY (USERNAME, GROUPNAME),
-    FOREIGN KEY (USERNAME) REFERENCES USERS(USERNAME)
-);
-
--- Insertar usuarios y roles de ejemplo
-INSERT INTO USERS (USERNAME, PASSWORD) VALUES ('admin', 'admin');
-INSERT INTO USERS (USERNAME, PASSWORD) VALUES ('dev', 'dev');
-INSERT INTO USERS (USERNAME, PASSWORD) VALUES ('manager', 'manager');
-
-INSERT INTO USER_GROUPS (USERNAME, GROUPNAME) VALUES ('admin', 'ADMIN');
-INSERT INTO USER_GROUPS (USERNAME, GROUPNAME) VALUES ('dev', 'DEVELOPER');
-INSERT INTO USER_GROUPS (USERNAME, GROUPNAME) VALUES ('manager', 'MANAGER');
-INSERT INTO USER_GROUPS (USERNAME, GROUPNAME) VALUES ('manager', 'DEVELOPER'); -- Un manager también puede ser developer
-```
-
+ 
 Este script creará las tablas `USERS` y `USER_GROUPS` que nuestro `pmRealm` usará para la autenticación, y también insertará algunos usuarios de prueba.
 
-## 6. Diseño de las Entidades del Sistema de Gestión de Proyectos
+## 5. Diseño de las Entidades del Sistema de Gestión de Proyectos
 
 Ahora, vamos a crear las clases Java que representarán las tablas de nuestra base de datos.
 
-### 6.1. Clase Base `BaseEntity.java` (Opcional, pero recomendado)
+### 5.1. Clase Base `BaseEntity.java` (Opcional, pero recomendado)
 
 Para tener campos comunes como `id` y simplificar futuros desarrollos, podemos crear una clase base abstracta.
 
@@ -207,7 +186,7 @@ public abstract class BaseEntity implements Serializable {
 }
 ```
 
-### 6.2. Entidad Project.java
+### 5.2. Entidad Project.java
 
 Esta entidad representará un proyecto en nuestro sistema.
 
@@ -302,7 +281,7 @@ public class Project extends BaseEntity {
 - **Getters y Setters**: Son necesarios para que Jakarta Persistence acceda a los valores de los campos.
 - **@NotBlank** y **@Size**: Estas son anotaciones de Bean Validation, las exploraremos en el Día 6. Por ahora, solo las dejamos ahí.
 
-### 6.3. Entidad `User.java`
+### 5.3. Entidad `User.java`
 Aunque ya tenemos tablas `USERS` y `USER_GROUPS` para el Realm de seguridad, es buena práctica tener una entidad `User` también para la lógica de negocio de la aplicación.
 
 Crea [`User.java`](../source-code/dia-02/project-manager/src/main/java/com/tuempresa/proyecto/domain/User.java) en `com.tuempresa.proyecto.domain`:
@@ -389,9 +368,9 @@ public class User extends BaseEntity {
 }
 ```
 
-## 7. Verificación y Despliegue
+## 6. Verificación y Despliegue
 
-1. **Guarda todos los archivos**: `persistence.xml`, `create_users.sql`, `BaseEntity.java`, `Project.java`, `User.java`.
+1. **Guarda todos los archivos**: `persistence.xml`,  `BaseEntity.java`, `Project.java`, `User.java`.
 2. **Re-despliega la aplicación**:
 - **En Eclipse**: Haz clic derecho en tu servidor GlassFish en la vista `Servers` y selecciona `Full Publish` o `Clean` > `Publish`. Asegúrate de que el proyecto `mi-proyecto-pm` esté añadido al servidor.
 - **En NetBeans**: Haz clic derecho en tu proyecto y selecciona `Clean and Build`, luego `Run`.

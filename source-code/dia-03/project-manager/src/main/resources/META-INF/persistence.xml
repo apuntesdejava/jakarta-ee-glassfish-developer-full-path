@@ -7,6 +7,7 @@
     <persistence-unit name="pm-pu" transaction-type="JTA">
         <jta-data-source>jdbc/pmdb</jta-data-source> <properties>
             <property name="jakarta.persistence.schema-generation.database.action" value="drop-and-create"/>
+            <property name="jakarta.persistence.sql-load-script-source" value="META-INF/sql/create_users.sql"/>
             <property name="eclipselink.logging.level" value="FINE"/>
             <property name="eclipselink.logging.parameters" value="true"/>
             <property name="eclipselink.ddl-generation.output-mode" value="database"/>

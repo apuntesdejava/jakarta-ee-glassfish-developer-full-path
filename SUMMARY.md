@@ -6,8 +6,8 @@
 
 * [Día 1: Configuración del Entorno y Primer Proyecto](bloque-01/dia-01-configuracion-del-entorno-y-primer-proyecto.md)
 * [Día 2: Diseño de Entidades y Jakarta Persistence (Antes JPA) Básico](bloque-01/dia-02-disenio-entidades-jpa-basico.md)
-* [Día 3: Operaciones CRUD Básicas con Jakarta Persistence (Antes JPA)](bloque-01/dia-03-crud-basicas-con-jpa.md)
-  * [Operaciones CRUD con Jakarta Data (Disponible a partir de Jakarta EE 11)](bloque-01/dia-03-crud-basicas-con-jakarta-data.md)
+* Día 3: Operaciones CRUD Básicas con Jakarta Persistence (Antes JPA)
+  * Operaciones CRUD con Jakarta Data (Disponible a partir de Jakarta EE 11
 * Día 4: Relaciones de Entidades y Fetching
 * Día 5: Capa de Servicio con Jakarta Enterprise Beans (Antes EJB)
 * Día 6: Validaciones con Bean Validation
