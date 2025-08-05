@@ -10,7 +10,7 @@ import jakarta.validation.constraints.Size;
 @Table(name = "APP_USERS") // Para diferenciarla de la tabla USERS del realm si es necesario
 public class User extends BaseEntity {
 
-    @NotBlank(message = "El nombre de usuario no puede estar vacío.")
+	@NotBlank(message = "El nombre de usuario no puede estar vacío.")
     @Size(max = 50, message = "El nombre de usuario no puede exceder 50 caracteres.")
     private String username;
 
@@ -69,11 +69,11 @@ public class User extends BaseEntity {
 
     @Override
     public String toString() {
-        return "User{"
-                + "id=" + id
-                + ", username='" + username + '\''
-                + ", email='" + email + '\''
-                + ", fullName='" + fullName + '\''
-                + '}';
+        return "User{" +
+               "id=" + id +
+               ", username='" + username + '\'' +
+               ", email='" + email + '\'' +
+               ", fullName='" + fullName + '\'' +
+               '}';
     }
 }

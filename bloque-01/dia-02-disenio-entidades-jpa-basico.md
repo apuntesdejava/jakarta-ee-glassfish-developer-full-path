@@ -22,7 +22,7 @@ Para este tutorial, usaremos MariaDB como base de datos. Para iniciar la base de
 2. Desde una ventana de comandos, entrar a la ubicación de GlassFish, en la carpeta donde está el directorio `bin`
 
    ![](https://i.imgur.com/r5ex9MD.png)
-3. Iniciar GlassFishc con el siguiente comando:
+3. Iniciar GlassFish con el siguiente comando:
    ```powershell
    .\asadmin start-domain
    ``` 
@@ -133,8 +133,6 @@ Este archivo es crucial para Jakarta Persistence. Define cómo tus entidades se 
     - `none`: No hace nada con el esquema (espera que las tablas ya existan).
 - `eclipselink.logging.level`: Nivel de log para EclipseLink (la implementación de Jakarta Persistence de GlassFish). `FINE` muestra las sentencias SQL generadas.
  
-Este script creará las tablas `USERS` y `USER_GROUPS` que nuestro `pmRealm` usará para la autenticación, y también insertará algunos usuarios de prueba.
-
 ## 5. Diseño de las Entidades del Sistema de Gestión de Proyectos
 
 Ahora, vamos a crear las clases Java que representarán las tablas de nuestra base de datos.
@@ -368,14 +366,42 @@ public class User extends BaseEntity {
 }
 ```
 
-## 6. Verificación y Despliegue
+## 6. `JpaProvider.java` como proveedor de `EntityManager`
 
-1. **Guarda todos los archivos**: `persistence.xml`,  `BaseEntity.java`, `Project.java`, `User.java`.
+Necesitamos una clase que maneje el `EntityManager`, y ésta provea a todas las demás clases la conexión. Para ello, lo instanciamos usando la anotación `@PersistenceContext`, y para que esté disponible para todos, usamos la anotación `@Produces`.
+
+```java
+package com.tuempresa.proyecto.provider;
+
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Produces;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+
+@ApplicationScoped
+public class JpaProvider {
+
+    @Produces
+    @PersistenceContext(name = "pm-pu")
+    private EntityManager em;
+}
+```
+
+## 7. Verificación y Despliegue
+
+1. **Guarda todos los archivos**: `persistence.xml`,  `BaseEntity.java`, `Project.java`, `User.java`, `JpaProvider.java`.
 2. **Re-despliega la aplicación**:
-- **En Eclipse**: Haz clic derecho en tu servidor GlassFish en la vista `Servers` y selecciona `Full Publish` o `Clean` > `Publish`. Asegúrate de que el proyecto `mi-proyecto-pm` esté añadido al servidor.
+- **En Eclipse**: Haz clic derecho en tu servidor proyecto, seleccion "Run As > Run On Server" .
+ 
+  ![](https://i.imgur.com/6SdZBeM.png)
+  
+  Selecciona el servidor GlassFish
+  ![](https://i.imgur.com/SvmNfJY.png)
+  Y hacer clic en "Finish". 
 - **En NetBeans**: Haz clic derecho en tu proyecto y selecciona `Clean and Build`, luego `Run`.
+  ![](https://i.imgur.com/OqEqC1j.png) 
 
-Cuando la aplicación se despliegue, GlassFish y Jakarta Persistence (EclipseLink) leerán tu `persistence.xml`. Gracias a `drop-and-create`, las tablas `PROJECTS` y `APP_USERS` deberían crearse automáticamente en la base de datos de Derby. Además, el script `create_users.sql` se ejecutará para crear las tablas `USERS` y `USER_GROUPS` y poblar con datos iniciales para el Realm de seguridad.
+Cuando la aplicación se despliegue, GlassFish y Jakarta Persistence (EclipseLink) leerán tu `persistence.xml`. Gracias a `drop-and-create`, las tablas `PROJECTS` y `APP_USERS` deberían crearse automáticamente en la base de datos de MariaDB. 
 
 Puedes revisar los logs de GlassFish (en la pestaña `Console` de tu IDE o en el archivo `server.log` dentro de la carpeta `glassfish7/glassfish/domains/domain1/logs`) para ver las sentencias SQL que Jakarta Persistence ha ejecutado. 
 
