@@ -265,6 +265,7 @@ public class ProjectResource {
          $response | ConvertTo-Json
          ``` 
          **Postman**
+     
          He creado un Postman público para que pruebes: [Projects | Create](https://www.postman.com/apuntesdejava/workspace/jakarta-ee-tutorial/request/112251-5a8d2828-d4e7-4a23-ad9b-a004f75bb559?action=share&source=copy-link&creator=112251) 
            
      -   Opcional, con navegador: http://localhost:8080/project-manager/rest/projects/create-test (varias veces para crear algunos)
@@ -273,25 +274,25 @@ public class ProjectResource {
      - Método: `GET`
      - Deberías ver una lista JSON de los proyectos que creaste.
                        
-     **cURL** 
-     ```shell
-     curl --location 'http://localhost:8080/project-manager/rest/projects'
-     ```
-     **Powershell**
-     ```powershell
-     $response = Invoke-RestMethod 'http://localhost:8080/project-manager/rest/projects' -Method 'GET' -Headers $headers
-     $response | ConvertTo-Json
-     ```
-     **Postman**
-     He creado un Postman público para que pruebes: [Projects | List](https://www.postman.com/apuntesdejava/workspace/jakarta-ee-tutorial/request/112251-edd3249e-f556-40c9-8355-163020eb751e?action=share&source=copy-link&creator=112251&active-environment=53d96f11-83bc-4aa6-b0d7-9e18df93e36b) 
+       **cURL** 
+       ```shell
+       curl --location 'http://localhost:8080/project-manager/rest/projects'
+       ```
+       **Powershell**
+       ```powershell
+       $response = Invoke-RestMethod 'http://localhost:8080/project-manager/rest/projects' -Method 'GET' -Headers $headers
+       $response | ConvertTo-Json
+       ```
+       **Postman**
+       He creado un Postman público para que pruebes: [Projects | List](https://www.postman.com/apuntesdejava/workspace/jakarta-ee-tutorial/request/112251-edd3249e-f556-40c9-8355-163020eb751e?action=share&source=copy-link&creator=112251&active-environment=53d96f11-83bc-4aa6-b0d7-9e18df93e36b) 
 
-     - Obtener un Proyecto por ID (GET):
-       - URL: http://localhost:8080/project-manager/rest/projects/{id_del_proyecto} (reemplaza {id_del_proyecto} con un ID real de tu lista)
-       - Método: `GET`
+   - Obtener un Proyecto por ID (GET):
+     - URL: http://localhost:8080/project-manager/rest/projects/{id_del_proyecto} (reemplaza {id_del_proyecto} con un ID real de tu lista)
+     - Método: `GET`
 
        **cURL**
        ```shell
-       curl --location 'http://localhost:8080/project-manager/rest/projects/1'
+         curl --location 'http://localhost:8080/project-manager/rest/projects/1'
        ```
        **Powershell**
        ```powershell
@@ -299,21 +300,22 @@ public class ProjectResource {
        $response | ConvertTo-Json
        ```
        **Postman**
-       He creado un Postman público para que pruebes: [Projects | Get Project by ID](https://www.postman.com/apuntesdejava/workspace/jakarta-ee-tutorial/request/112251-becb73a8-c127-49e4-9ab5-86d556b35d5b?action=share&source=copy-link&creator=112251&active-environment=53d96f11-83bc-4aa6-b0d7-9e18df93e36b)
 
-     - Actualizar un Proyecto (PUT):
-       - URL: http://localhost:8080/project-manager/rest/projects/{id_del_proyecto_a_actualizar}
-       - Método: `PUT`
-       - Headers: `Content-Type: application/json`
-       - Body (raw JSON):
-         ```json
-           {
-              "name": "Mi Proyecto Actualizado",
-              "description": "La nueva descripción del proyecto.",
-              "startDate": "2025-07-25",
-              "endDate": "2025-09-25"
-            }
-         ```
+     He creado un Postman público para que pruebes: [Projects | Get Project by ID](https://www.postman.com/apuntesdejava/workspace/jakarta-ee-tutorial/request/112251-becb73a8-c127-49e4-9ab5-86d556b35d5b?action=share&source=copy-link&creator=112251&active-environment=53d96f11-83bc-4aa6-b0d7-9e18df93e36b)
+
+   - Actualizar un Proyecto (PUT):
+     - URL: http://localhost:8080/project-manager/rest/projects/{id_del_proyecto_a_actualizar}
+     - Método: `PUT`
+     - Headers: `Content-Type: application/json`
+     - Body (raw JSON):
+       ```json
+         {
+            "name": "Mi Proyecto Actualizado",
+            "description": "La nueva descripción del proyecto.",
+            "startDate": "2025-07-25",
+            "endDate": "2025-09-25"
+          }
+       ```
 
        **cURL**
        ```shell
@@ -345,18 +347,18 @@ public class ProjectResource {
      - URL: http://localhost:8080/project-manager/rest/projects/{id_del_proyecto_a_eliminar}
      - Método: `DELETE`
 
-     **cURL**
-     ```shell
-     curl --request DELETE \
-          --url http://localhost:8080/project-manager/rest/projects/1
-     ```
-     **Powershell**
-     ```powershell
-     $response = Invoke-RestMethod -Uri 'http://localhost:8080/project-manager/rest/projects/1' -Method DELETE 
-     $response | ConvertTo-Json
-     ```
-     **Postman**
-     He creado un Postman público para que pruebes: [Projects | Delete](https://www.postman.com/apuntesdejava/workspace/jakarta-ee-tutorial/request/112251-e089fcb6-5e79-481e-b9ea-6edee9d346d2?action=share&source=copy-link&creator=112251&active-environment=53d96f11-83bc-4aa6-b0d7-9e18df93e36b)
+       **cURL**
+       ```shell
+       curl --request DELETE \
+            --url http://localhost:8080/project-manager/rest/projects/1
+       ```
+       **Powershell**
+       ```powershell
+       $response = Invoke-RestMethod -Uri 'http://localhost:8080/project-manager/rest/projects/1' -Method DELETE 
+       $response | ConvertTo-Json
+       ```
+       **Postman**
+       He creado un Postman público para que pruebes: [Projects | Delete](https://www.postman.com/apuntesdejava/workspace/jakarta-ee-tutorial/request/112251-e089fcb6-5e79-481e-b9ea-6edee9d346d2?action=share&source=copy-link&creator=112251&active-environment=53d96f11-83bc-4aa6-b0d7-9e18df93e36b)
 
 
 Al realizar estas operaciones, el `EntityManager` gestionará las transacciones con la base de datos a través de nuestro Enterprise Bean `ProjectService`.
