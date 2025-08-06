@@ -90,7 +90,7 @@ Además, para este proyecto, usaremos algunas validaciones en las entidades. Par
 <dependency>
     <groupId>jakarta.validation</groupId>
     <artifactId>jakarta.validation-api</artifactId>
-    <version>3.1.0</version>
+    <version>3.1.1</version>
     <scope>provided</scope>
 </dependency>
 ```
@@ -112,11 +112,11 @@ Este archivo es crucial para Jakarta Persistence. Define cómo tus entidades se 
              xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence https://jakarta.ee/xml/ns/persistence/persistence_3_0.xsd">
 
     <persistence-unit name="pm-pu" transaction-type="JTA">
-        <jta-data-source>jdbc/pmdb</jta-data-source> <properties>
+        <jta-data-source>jdbc/pmdb</jta-data-source>
+        <properties>
             <property name="jakarta.persistence.schema-generation.database.action" value="drop-and-create"/>
             <property name="eclipselink.logging.level" value="FINE"/>
             <property name="eclipselink.logging.parameters" value="true"/>
-            <property name="eclipselink.ddl-generation.output-mode" value="database"/>
         </properties>
     </persistence-unit>
 
@@ -126,7 +126,7 @@ Este archivo es crucial para Jakarta Persistence. Define cómo tus entidades se 
 **Explicación de las propiedades clave:**
 - `persistence-unit name="pm-pu"`: Nombre de nuestra unidad de persistencia. Lo usaremos para inyectar el `EntityManager`.
 - `transaction-type="JTA"`: Indica que usaremos transacciones gestionadas por el contenedor (Jakarta Transactions API), lo cual es lo común en Jakarta EE.
-- `jta-data-source>jdbc/pmdb</jta-data-source>`: Especifica el JNDI Name de la fuente de datos (DataSource) que GlassFish nos proporciona. **Asegúrate de que este JNDI Name coincida con el que configuraste en GlassFish**.
+- `<jta-data-source>jdbc/pmdb</jta-data-source>`: Especifica el JNDI Name de la fuente de datos (DataSource) que GlassFish nos proporciona. **Asegúrate de que este JNDI Name coincida con el que configuraste en GlassFish**.
 - `jakarta.persistence.schema-generation.database.action`: Controla cómo Jakarta Persistence interactúa con el esquema de la base de datos.
     - `drop-and-create`: Borra todas las tablas existentes y las vuelve a crear cada vez que se despliega la aplicación. **Útil para desarrollo, ¡nunca en producción!**
     - `create`: Crea las tablas si no existen.
@@ -251,7 +251,7 @@ public class Project extends BaseEntity {
     }
 
     public LocalDate getEndDate() {
-        return LocalDate.class.cast(endDate); // Asegura que endDate sea LocalDate
+        return endDate; // Asegura que endDate sea LocalDate
     }
 
     public void setEndDate(LocalDate endDate) {
@@ -386,6 +386,9 @@ public class JpaProvider {
     private EntityManager em;
 }
 ```
+- `@PersistenceContext(unitName = "pm-pu")`: Esta es la joya de la inyección. Le dice al contenedor Jakarta EE que inyecte una instancia de `EntityManager` en la variable `em`.
+    - `unitName = "pm-pu"`: Es crucial. Indica a Jakarta Persistence qué unidad de persistencia (definida en `persistence.xml`) debe usar para este `EntityManager`. Asegúrate de que el nombre (`pm-pu`) coincida exactamente con el que definiste en tu `persistence.xml` en el paso 4.
+
 
 ## 7. Verificación y Despliegue
 

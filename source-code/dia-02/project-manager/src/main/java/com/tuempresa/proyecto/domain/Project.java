@@ -58,7 +58,7 @@ public class Project extends BaseEntity {
     }
 
     public LocalDate getEndDate() {
-        return LocalDate.class.cast(endDate); // Asegura que endDate sea LocalDate
+        return endDate; // Asegura que endDate sea LocalDate
     }
 
     public void setEndDate(LocalDate endDate) {

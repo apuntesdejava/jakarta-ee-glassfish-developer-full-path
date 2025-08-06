@@ -2,7 +2,22 @@
 
 En el Día 2 configuramos Jakarta Persistence y diseñamos nuestras entidades. Hoy, nos centraremos en cómo interactuar con esas entidades en la base de datos: las operaciones **CRUD** (Crear, Leer, Actualizar y Borrar). Para ello, utilizaremos el `EntityManager` de **Jakarta Persistence**.
 
-## 1. El `EntityManager` y su Inyección
+## 1. La dependencia para las Transacciones
+
+Ahora que haremos CRUD, necesitamos habilitar las transacciones en las bases de datos. Para ello debemos agregar la siguiente dependencia
+
+```xml
+<dependency>
+    <groupId>jakarta.transaction</groupId>
+    <artifactId>jakarta.transaction-api</artifactId>
+    <version>2.0.1</version>
+    <scope>provided</scope>
+</dependency>
+```
+
+Cada vez que necesitemos modificar datos en la base de datos, debemos usar las transacciones. Para ello usaremos la anotación [`@Transactional`](https://jakarta.ee/specifications/platform/11/apidocs/jakarta/transaction/transactional) en el método que haremos una transacción.
+
+## 2. Reutilizando  `EntityManager` en Inyección
 
 El `EntityManager` es la interfaz central en Jakarta Persistence para todas las operaciones de persistencia. En un entorno Jakarta EE, no lo instanciamos directamente; el contenedor (GlassFish en nuestro caso) nos lo proporciona mediante **inyección de dependencia**.
 
@@ -15,21 +30,25 @@ package com.tuempresa.proyecto.service;
 
 import com.tuempresa.proyecto.domain.Project;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
+import jakarta.transaction.Transactional;
 import java.util.List;
+import java.util.Optional;
 
 @ApplicationScoped // Indica que esta clase es un EJB Stateless, gestionado por el contenedor
 public class ProjectService {
 
-    @PersistenceContext(unitName = "pm-pu") // Inyecta el EntityManager para nuestra unidad de persistencia
+    @Inject // Inyecta el EntityManager para nuestra unidad de persistencia
     private EntityManager em;
 
     /**
      * Crea un nuevo proyecto en la base de datos.
+     *
      * @param project El objeto Project a persistir.
      * @return El proyecto persistido (con ID generado si aplica).
      */
+    @Transactional
     public Project createProject(Project project) {
         // 'persist' hace que una nueva entidad pase al estado gestionado y se prepare para ser insertada.
         em.persist(project);
@@ -38,6 +57,7 @@ public class ProjectService {
 
     /**
      * Busca un proyecto por su ID.
+     *
      * @param id El ID del proyecto.
      * @return El proyecto encontrado o null si no existe.
      */
@@ -48,9 +68,12 @@ public class ProjectService {
 
     /**
      * Actualiza un proyecto existente en la base de datos.
+     *
      * @param project El objeto Project con los datos actualizados.
-     * @return El proyecto actualizado (puede ser la misma instancia o una gestionada por JPA).
+     * @return El proyecto actualizado (puede ser la misma instancia o una
+     * gestionada por JPA).
      */
+    @Transactional
     public Project updateProject(Project project) {
         // 'merge' se usa para entidades que podrían no estar en el contexto de persistencia.
         // Si la entidad ya existe y está gestionada, la sincroniza. Si no, la adjunta.
@@ -59,18 +82,20 @@ public class ProjectService {
 
     /**
      * Elimina un proyecto de la base de datos.
+     *
      * @param id El ID del proyecto a eliminar.
      */
+    @Transactional
     public void deleteProject(Long id) {
-        Project project = findProjectById(id);
-        if (project != null) {
+        Optional.ofNullable(findProjectById(id)).ifPresent(project -> {
             // 'remove' elimina la entidad del contexto de persistencia y la marca para eliminación de la BD.
             em.remove(project);
-        }
+        });
     }
 
     /**
      * Obtiene todos los proyectos de la base de datos.
+     *
      * @return Una lista de todos los proyectos.
      */
     public List<Project> findAllProjects() {
@@ -79,15 +104,16 @@ public class ProjectService {
         return em.createQuery("SELECT p FROM Project p", Project.class).getResultList();
     }
 }
+
 ```
 
 **Explicación de las Anotaciones Clave**:
 
 - `@ApplicationScoped`: Esta anotación convierte la clase `ProjectService` en un **Enterprise Bean sin estado**. Los Enterprise Bean son componentes de servidor que el contenedor Jakarta EE gestiona. `@Stateless` es ideal para servicios de negocio porque son ligeros y pueden ser reutilizados por múltiples clientes de forma concurrente, sin mantener estado entre llamadas.
-- `@PersistenceContext(unitName = "pm-pu")`: Esta es la joya de la inyección. Le dice al contenedor Jakarta EE que inyecte una instancia de `EntityManager` en la variable `em`.
-  - `unitName = "pm-pu"`: Es crucial. Indica a Jakarta Persistence qué unidad de persistencia (definida en `persistence.xml`) debe usar para este `EntityManager`. Asegúrate de que el nombre (`pm-pu`) coincida exactamente con el que definiste en tu `persistence.xml` en el Día 2.
+- `@Inject`: Esta es otra joya de la inyección. Le dice al contenedor Jakarta EE que utilice la instancia de `EntityManager` que fue creada en la clase `JpaProvider` que se vio en el Día 02.
+  
 
-## 2. Probando las Operaciones CRUD (Temporalmente con Jakarta RESTful)
+## 3. Probando las Operaciones CRUD (Temporalmente con Jakarta RESTful)
 
 Para verificar rápidamente que nuestras operaciones CRUD funcionan, podemos añadir temporalmente algunos endpoints a nuestro recurso Jakarta RESTful existente del Día 1. En los próximos días, construiremos una interfaz web más robusta.
 
@@ -110,13 +136,14 @@ import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.core.Response;
 import java.time.LocalDate; // Asegúrate de importar LocalDate
+import java.util.List;
 
 @Path("projects") // Cambiamos el path base a 'projects'
 public class ProjectResource {
 
     @Inject // Inyectamos nuestro ProjectService
     private ProjectService projectService;
- 
+
     @POST
     @Consumes(MediaType.APPLICATION_JSON) // Espera un Project en formato JSON
     @Produces(MediaType.APPLICATION_JSON) // Devuelve el Project creado en JSON
@@ -149,7 +176,7 @@ public class ProjectResource {
             existingProject.setDescription(updatedProject.getDescription());
             existingProject.setStartDate(updatedProject.getStartDate());
             existingProject.setEndDate(updatedProject.getEndDate());
-            
+
             Project result = projectService.updateProject(existingProject);
             return Response.ok(result).build();
         } else {
@@ -170,7 +197,7 @@ public class ProjectResource {
     public List<Project> getAllProjects() {
         return projectService.findAllProjects();
     }
-    
+
     // Un método simple para crear un proyecto de prueba desde el navegador (GET)
     // ESTO ES SOLO PARA PRUEBAS RÁPIDAS Y DEBE SER ELIMINADO EN UN ENTORNO REAL
     @GET
@@ -196,45 +223,140 @@ public class ProjectResource {
 ## 3. Prueba de la Aplicación
 
 1. Guarda todos los archivos: `ProjectService.java` y `ProjectResource.java`.
-2. Re-despliega la aplicación en GlassFish desde tu IDE.
-3. Usa una herramienta como **Postman**, **Insomnia**, **HTTPie** o **curl** para probar los endpoints REST. O simplemente tu navegador para los métodos GET.
-   - Crear un Proyecto (POST):
-     - URL: http://localhost:8080/mi-proyecto-pm/rest/projects
-     - Método: `POST`
-     - Headers: `Content-Type: application/json`
-     - Body (raw JSON):
-       ```json
-          {
-             "name": "Mi Primer Proyecto",
-             "description": "Un proyecto de ejemplo para el tutorial.",
-             "startDate": "2025-07-24",
-             "endDate": "2025-08-24"
-          }
-       ```
-     -   Opcional, con navegador: http://localhost:8080/mi-proyecto-pm/rest/projects/create-test (varias veces para crear algunos)
-   - Obtener Todos los Proyectos (GET):
-     - URL: http://localhost:8080/mi-proyecto-pm/rest/projects/all
-     - Método: `GET`
-     - Deberías ver una lista JSON de los proyectos que creaste.
-   - Obtener un Proyecto por ID (GET):
-     - URL: http://localhost:8080/mi-proyecto-pm/rest/projects/{id_del_proyecto} (reemplaza {id_del_proyecto} con un ID real de tu lista)
-     - Método: `GET`
-   - Actualizar un Proyecto (PUT):
-     - URL: http://localhost:8080/mi-proyecto-pm/rest/projects/{id_del_proyecto_a_actualizar}
-     - Método: `PUT`
-     - Headers: `Content-Type: application/json`
-     - Body (raw JSON):
-       ```json
-         {
-            "name": "Mi Proyecto Actualizado",
-            "description": "La nueva descripción del proyecto.",
-            "startDate": "2025-07-25",
-            "endDate": "2025-09-25"
-          }
-       ```
-   - Eliminar un Proyecto (DELETE):
-     - URL: http://localhost:8080/mi-proyecto-pm/rest/projects/{id_del_proyecto_a_eliminar}
-     - Método: `DELETE`
+   2. Re-despliega la aplicación en GlassFish desde tu IDE.
+      3. Usa una herramienta como **Postman**, **Insomnia**, **HTTPie** o **curl** para probar los endpoints REST. O simplemente tu navegador para los métodos GET.
+         - Crear un Proyecto (POST):
+           - URL: http://localhost:8080/project-manager/rest/projects
+           - Método: `POST`
+           - Headers: `Content-Type: application/json`
+           - Body (raw JSON):
+             ```json
+                {
+                   "name": "Mi Primer Proyecto",
+                   "description": "Un proyecto de ejemplo para el tutorial.",
+                   "startDate": "2025-07-24",
+                   "endDate": "2025-08-24"
+                }
+             ```
+              
+               **cURL**       
+               ```shell
+                  curl --request POST \
+                          --url http://localhost:8080/project-manager/rest/projects \
+                          --header 'Content-Type: application/json' \
+                          --data '{
+                              "name": "Mi Primer Proyecto",
+                              "description": "Un proyecto de ejemplo para el tutorial.",
+                              "startDate": "2025-07-24",
+                              "endDate": "2025-08-24"
+                          }'
+               ```
+               **Powershell**         
+               ```powershell
+               $headers=@{}
+               $headers.Add("Content-Type", "application/json")
+               $response = Invoke-RestMethod -Uri 'http://localhost:8080/project-manager/rest/projects' -Method POST -Headers $headers -ContentType 'application/json' -Body '{
+                 "name": "Mi Primer Proyecto",
+                 "description": "Un proyecto de ejemplo para el tutorial.",
+                 "startDate": "2025-07-24",
+                 "endDate": "2025-08-24"
+               }'
+               $response | ConvertTo-Json
+               ``` 
+               **Postman**
+               He creado un Postman público para que pruebes: [Projects | Create](https://www.postman.com/apuntesdejava/workspace/jakarta-ee-tutorial/request/112251-5a8d2828-d4e7-4a23-ad9b-a004f75bb559?action=share&source=copy-link&creator=112251) 
+           
+           -   Opcional, con navegador: http://localhost:8080/project-manager/rest/projects/create-test (varias veces para crear algunos)
+         - Obtener Todos los Proyectos (GET):
+           - URL: http://localhost:8080/project-manager/rest/projects/all
+           - Método: `GET`
+           - Deberías ver una lista JSON de los proyectos que creaste.
+                       
+           **cURL** 
+           ```shell
+           curl --location 'http://localhost:8080/project-manager/rest/projects'
+           ```
+           **Powershell**
+           ```powershell
+           $response = Invoke-RestMethod 'http://localhost:8080/project-manager/rest/projects' -Method 'GET' -Headers $headers
+           $response | ConvertTo-Json
+           ```
+           **Postman**
+           He creado un Postman público para que pruebes: [Projects | List](https://www.postman.com/apuntesdejava/workspace/jakarta-ee-tutorial/request/112251-edd3249e-f556-40c9-8355-163020eb751e?action=share&source=copy-link&creator=112251&active-environment=53d96f11-83bc-4aa6-b0d7-9e18df93e36b) 
+
+           - Obtener un Proyecto por ID (GET):
+             - URL: http://localhost:8080/project-manager/rest/projects/{id_del_proyecto} (reemplaza {id_del_proyecto} con un ID real de tu lista)
+             - Método: `GET`
+
+             **cURL**
+             ```shell
+             curl --location 'http://localhost:8080/project-manager/rest/projects/1'
+             ```
+             **Powershell**
+             ```powershell
+             $response = Invoke-RestMethod -Uri 'http://localhost:8080/project-manager/rest/projects/1' -Method GET 
+             $response | ConvertTo-Json
+             ```
+             **Postman**
+             He creado un Postman público para que pruebes: [Projects | Get Project by ID](https://www.postman.com/apuntesdejava/workspace/jakarta-ee-tutorial/request/112251-becb73a8-c127-49e4-9ab5-86d556b35d5b?action=share&source=copy-link&creator=112251&active-environment=53d96f11-83bc-4aa6-b0d7-9e18df93e36b)
+
+           - Actualizar un Proyecto (PUT):
+             - URL: http://localhost:8080/project-manager/rest/projects/{id_del_proyecto_a_actualizar}
+             - Método: `PUT`
+             - Headers: `Content-Type: application/json`
+             - Body (raw JSON):
+               ```json
+                 {
+                    "name": "Mi Proyecto Actualizado",
+                    "description": "La nueva descripción del proyecto.",
+                    "startDate": "2025-07-25",
+                    "endDate": "2025-09-25"
+                  }
+               ```
+
+             **cURL**
+             ```shell
+             curl --request PUT \
+                  --url http://localhost:8080/project-manager/rest/projects/1 \
+                  --header 'Content-Type: application/json' \
+                  --data '{
+                             "name": "Mi Proyecto Actualizado",
+                             "description": "La nueva descripción del proyecto.",
+                             "startDate": "2025-07-25",
+                             "endDate": "2025-09-25"
+                    }'
+             ```
+             **Powershell**
+             ```powershell
+             $headers=@{}
+             $headers.Add("Content-Type", "application/json")
+             $response = Invoke-RestMethod -Uri 'http://localhost:8080/project-manager/rest/projects/1' -Method PUT -Headers $headers -ContentType 'application/json' -Body '{
+                "name": "Mi Proyecto Actualizado",
+                "description": "La nueva descripción del proyecto.",
+                "startDate": "2025-07-25",
+                "endDate": "2025-09-25"
+             }'
+             ```
+             **Postman**
+             He creado un Postman público para que pruebes: [Projects | Update](https://www.postman.com/apuntesdejava/workspace/jakarta-ee-tutorial/request/112251-11b2c632-9432-46f0-a4b0-3f00e33aae5c?action=share&source=copy-link&creator=112251&active-environment=53d96f11-83bc-4aa6-b0d7-9e18df93e36b)
+
+         - Eliminar un Proyecto (DELETE):
+           - URL: http://localhost:8080/project-manager/rest/projects/{id_del_proyecto_a_eliminar}
+           - Método: `DELETE`
+
+           **cURL**
+           ```shell
+           curl --request DELETE \
+                --url http://localhost:8080/project-manager/rest/projects/1
+           ```
+           **Powershell**
+           ```powershell
+           $response = Invoke-RestMethod -Uri 'http://localhost:8080/project-manager/rest/projects/1' -Method DELETE 
+           $response | ConvertTo-Json
+           ```
+           **Postman**
+           He creado un Postman público para que pruebes: [Projects | Delete](https://www.postman.com/apuntesdejava/workspace/jakarta-ee-tutorial/request/112251-e089fcb6-5e79-481e-b9ea-6edee9d346d2?action=share&source=copy-link&creator=112251&active-environment=53d96f11-83bc-4aa6-b0d7-9e18df93e36b)
+
 
 Al realizar estas operaciones, el `EntityManager` gestionará las transacciones con la base de datos a través de nuestro Enterprise Bean `ProjectService`.
 
