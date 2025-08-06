@@ -252,7 +252,7 @@ public class ProjectResource {
                         "endDate": "2025-08-24"
                     }'
          ```
-         **Powershell**         
+         **Ejemplo usando Powershell**         
          ```powershell
          $headers=@{}
          $headers.Add("Content-Type", "application/json")
@@ -274,11 +274,11 @@ public class ProjectResource {
      - Método: `GET`
      - Deberías ver una lista JSON de los proyectos que creaste.
                        
-       **cURL** 
+       **Ejemplo usando cURL** 
        ```shell
        curl --location 'http://localhost:8080/project-manager/rest/projects'
        ```
-       **Powershell**
+       **Ejemplo usando Powershell**
        ```powershell
        $response = Invoke-RestMethod 'http://localhost:8080/project-manager/rest/projects' -Method 'GET' -Headers $headers
        $response | ConvertTo-Json
@@ -290,18 +290,18 @@ public class ProjectResource {
      - URL: http://localhost:8080/project-manager/rest/projects/{id_del_proyecto} (reemplaza {id_del_proyecto} con un ID real de tu lista)
      - Método: `GET`
 
-       **cURL**
+       **Ejemplo usando cURL**
        ```shell
          curl --location 'http://localhost:8080/project-manager/rest/projects/1'
        ```
-       **Powershell**
+       **Ejemplo usando Powershell**
        ```powershell
        $response = Invoke-RestMethod -Uri 'http://localhost:8080/project-manager/rest/projects/1' -Method GET 
        $response | ConvertTo-Json
        ```
        **Postman**
 
-     He creado un Postman público para que pruebes: [Projects | Get Project by ID](https://www.postman.com/apuntesdejava/workspace/jakarta-ee-tutorial/request/112251-becb73a8-c127-49e4-9ab5-86d556b35d5b?action=share&source=copy-link&creator=112251&active-environment=53d96f11-83bc-4aa6-b0d7-9e18df93e36b)
+        He creado un Postman público para que pruebes: [Projects | Get Project by ID](https://www.postman.com/apuntesdejava/workspace/jakarta-ee-tutorial/request/112251-becb73a8-c127-49e4-9ab5-86d556b35d5b?action=share&source=copy-link&creator=112251&active-environment=53d96f11-83bc-4aa6-b0d7-9e18df93e36b)
 
    - Actualizar un Proyecto (PUT):
      - URL: http://localhost:8080/project-manager/rest/projects/{id_del_proyecto_a_actualizar}
@@ -317,7 +317,7 @@ public class ProjectResource {
           }
        ```
 
-       **cURL**
+       **Ejemplo usando cURL**
        ```shell
        curl --request PUT \
             --url http://localhost:8080/project-manager/rest/projects/1 \
@@ -329,7 +329,7 @@ public class ProjectResource {
                        "endDate": "2025-09-25"
               }'
        ```
-       **Powershell**
+       **Ejemplo usando Powershell**
        ```powershell
        $headers=@{}
        $headers.Add("Content-Type", "application/json")
@@ -347,12 +347,12 @@ public class ProjectResource {
      - URL: http://localhost:8080/project-manager/rest/projects/{id_del_proyecto_a_eliminar}
      - Método: `DELETE`
 
-       **cURL**
+       **Ejemplo usando cURL**
        ```shell
        curl --request DELETE \
             --url http://localhost:8080/project-manager/rest/projects/1
        ```
-       **Powershell**
+       **Ejemplo usando Powershell**
        ```powershell
        $response = Invoke-RestMethod -Uri 'http://localhost:8080/project-manager/rest/projects/1' -Method DELETE 
        $response | ConvertTo-Json
