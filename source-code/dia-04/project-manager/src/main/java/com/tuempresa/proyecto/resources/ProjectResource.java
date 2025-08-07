@@ -13,7 +13,6 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.core.Response;
-
 import java.time.LocalDate; // Asegúrate de importar LocalDate
 import java.util.List;
 
@@ -56,7 +55,7 @@ public class ProjectResource {
             existingProject.setDescription(updatedProject.getDescription());
             existingProject.setStartDate(updatedProject.getStartDate());
             existingProject.setEndDate(updatedProject.getEndDate());
-
+            
             Project result = projectService.updateProject(existingProject);
             return Response.ok(result).build();
         } else {
@@ -76,15 +75,14 @@ public class ProjectResource {
     public List<Project> getAllProjects() {
         return projectService.findAllProjects();
     }
-
+    
     // Un método simple para crear un proyecto de prueba desde el navegador (GET)
     // ESTO ES SOLO PARA PRUEBAS RÁPIDAS Y DEBE SER ELIMINADO EN UN ENTORNO REAL
     @GET
     @Path("create-test")
     @Produces(MediaType.APPLICATION_JSON)
     public Response createTestProject() {
-        Project testProject = new Project("Test Project " + System.currentTimeMillis(), "Description for test project",
-            LocalDate.now(), LocalDate.now().plusMonths(1));
+        Project testProject = new Project("Test Project " + System.currentTimeMillis(), "Description for test project", LocalDate.now(), LocalDate.now().plusMonths(1));
         projectService.createProject(testProject);
         return Response.ok(testProject).build();
     }

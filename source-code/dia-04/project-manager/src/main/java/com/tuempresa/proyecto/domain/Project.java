@@ -1,10 +1,15 @@
 package com.tuempresa.proyecto.domain;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank; // Para validaciones, lo veremos en el Día 6
 import jakarta.validation.constraints.Size;
 import java.time.LocalDate; // Para fechas, Jakarta EE soporta java.time
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity // Marca la clase como una entidad Jakarta Persistence, se mapeará a una tabla llamada 'Project' por defecto
 @Table(name = "PROJECTS") // Opcional: Especifica el nombre de la tabla si es diferente al nombre de la clase
@@ -19,6 +24,11 @@ public class Project extends BaseEntity {
     private LocalDate startDate;
 
     private LocalDate endDate;
+
+    // UN proyecto tiene MUCHAS tareas.
+    // 'mappedBy' indica que la clave foránea está en la entidad Task
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private Set<Task> tasks = new HashSet<>();
 
     // Constructor vacío (requerido por Jakarta Persistence)
     public Project() {
@@ -63,6 +73,15 @@ public class Project extends BaseEntity {
 
     public void setEndDate(LocalDate endDate) {
         this.endDate = endDate;
+    }
+    // ... getters y setters...
+
+    public Set<Task> getTasks() {
+        return tasks;
+    }
+
+    public void setTasks(Set<Task> tasks) {
+        this.tasks = tasks;
     }
 
     @Override
