@@ -53,13 +53,16 @@ Para una configuración más controlada, podemos crear nuestro propio pool y rec
 2. Haz clic en **New....**
     - **Pool Name**: `ProjectManagerPool`
     -  **Type**: `javax.sql.DataSource`
-    - **Database Driver Vendor**: `Derby` (o `JavaDB` que es lo mismo).
+    - **Database Driver Vendor**: Nada, porque lo configuraremos manualmente en la siguiente pantalla
     - Haz clic en **Next**.
 3.  En la siguiente pantalla, confirma las propiedades. Por defecto, Derby ya está configurado. Coloquemos los siguientes valores para crear y conectarnos a la base de datos:
     - `DatabaseName` :  `ProjectManagerDB`.
-    - `User` : `APP`
-    - `Password` : `APP`
-    - `connectionAttributes` : `create=true` (Esto sirve para que se cree la base de datos por primera vez. Este atributo es de Apache Derby)
+    - Datasource ClassName: `org.mariadb.jdbc.MariaDbDataSource` Que es la clase DataSource para MariaDB. Como se configuró en el paso anterior, debería encontrarlo sin problema.
+    - Activar la opción "Ping", para que valide de que se configuró correctamente la conexión.
+    - En la parte inferior, agregar las siguientes propiedades:
+      - `Url`: `jdbc:mariadb://localhost/pm`
+      - `User` : `pm`
+      - `Password`: `pm`
     - Los demás campos se quedan por omisión
     - Haz clic en **Finish**.
 4. Después de crear el pool, selecciónalo y haz clic en **Ping** para verificar la conexión.
@@ -417,11 +420,19 @@ Deberías ver algo como `Loading application [project-manager] at [/project-mana
 
 ![](https://i.imgur.com/d9URgHP.png)
 
+
+## Vídeo demostrativo
+
+[![Watch the video](https://img.youtube.com/vi/5NgNlQIQVHk/default.jpg)](https://youtu.be/5NgNlQIQVHk)
+
+
 ## El código fuente
 
 Puedes obtener el código fuente de esta sesión en la siguiente ubicación:
 
 [project-manager | Día 02](../source-code/dia-02)
+
+
 ---
 
 ¡Felicidades! Has configurado Jakarta Persistence, definido tu unidad de persistencia y diseñado tus primeras entidades. Esto sienta las bases para almacenar y gestionar datos en tu Sistema de Gestión de Proyectos.
