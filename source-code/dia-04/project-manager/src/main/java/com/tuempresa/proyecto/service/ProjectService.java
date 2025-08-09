@@ -4,6 +4,7 @@ import com.tuempresa.proyecto.domain.Project;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.criteria.JoinType;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
@@ -71,8 +72,14 @@ public class ProjectService {
      * @return Una lista de todos los proyectos.
      */
     public List<Project> findAllProjects() {
-        // Se utiliza JPQL (Jakarta Persistence Query Language) para consultar entidades.
-        // "FROM Project" significa seleccionar todas las instancias de la entidad Project.
-        return em.createQuery("SELECT p FROM Project p", Project.class).getResultList();
+        // Usando JPQL
+        //return em.createQuery("SELECT p FROM Project p  LEFT JOIN Fetch p.tasks t", Project.class).getResultList();
+        
+        //Usando API Persistence
+        var cb = em.getCriteriaBuilder();
+        var cq = cb.createQuery(Project.class);
+        var project = cq.from(Project.class);  
+        project.fetch("tasks",JoinType.LEFT);
+        return em.createQuery(cq).getResultList();
     }
 }

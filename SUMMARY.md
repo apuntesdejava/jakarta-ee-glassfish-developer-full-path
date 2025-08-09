@@ -8,7 +8,7 @@
 * [Día 2: Diseño de Entidades y Jakarta Persistence (Antes JPA) Básico](bloque-01/dia-02-disenio-entidades-jpa-basico.md)
 * [Día 3: Operaciones CRUD Básicas con Jakarta Persistence (Antes JPA)](bloque-01/dia-03-crud-basicas-con-jpa.md)
   * Operaciones CRUD con Jakarta Data (Disponible a partir de Jakarta EE 11
-* Día 4: Relaciones de Entidades y Fetching
+* [Día 4: Relaciones de Entidades y Fetching](bloque-01/dia-04-relaciones-fetching.md)
 * Día 5: Capa de Servicio con Jakarta Enterprise Beans (Antes EJB)
 * Día 6: Validaciones con Bean Validation
 * Día 7: Consultas Avanzadas con JPQL y Criteria API:

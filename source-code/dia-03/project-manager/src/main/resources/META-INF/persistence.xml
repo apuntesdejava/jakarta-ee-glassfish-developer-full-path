@@ -8,10 +8,7 @@
         <jta-data-source>jdbc/pmdb</jta-data-source> 
         <properties>
             <property name="jakarta.persistence.schema-generation.database.action" value="drop-and-create"/>
-            <property name="eclipselink.logging.level" value="FINE"/>
             <property name="eclipselink.logging.parameters" value="true"/>
-            <property name="eclipselink.logging.level.sql" value="FINE"/>
-            
         </properties>
     </persistence-unit>
 

@@ -115,7 +115,6 @@ Este archivo es crucial para Jakarta Persistence. Define cómo tus entidades se 
         <jta-data-source>jdbc/pmdb</jta-data-source>
         <properties>
             <property name="jakarta.persistence.schema-generation.database.action" value="drop-and-create"/>
-            <property name="eclipselink.logging.level" value="FINE"/>
             <property name="eclipselink.logging.parameters" value="true"/>
         </properties>
     </persistence-unit>
@@ -131,7 +130,7 @@ Este archivo es crucial para Jakarta Persistence. Define cómo tus entidades se 
     - `drop-and-create`: Borra todas las tablas existentes y las vuelve a crear cada vez que se despliega la aplicación. **Útil para desarrollo, ¡nunca en producción!**
     - `create`: Crea las tablas si no existen.
     - `none`: No hace nada con el esquema (espera que las tablas ya existan).
-- `eclipselink.logging.level`: Nivel de log para EclipseLink (la implementación de Jakarta Persistence de GlassFish). `FINE` muestra las sentencias SQL generadas.
+- `eclipselink.logging.parameters`: Nivel de log para EclipseLink (la implementación de Jakarta Persistence de GlassFish). `FINE` muestra los parámetros  enlazados al SQL, incluyendo los valores de las excepciones y de los registros obtenidos.
  
 ## 5. Diseño de las Entidades del Sistema de Gestión de Proyectos
 
@@ -418,10 +417,11 @@ Deberías ver algo como `Loading application [project-manager] at [/project-mana
 
 ![](https://i.imgur.com/d9URgHP.png)
 
-## Código Fuente
+## El código fuente
 
-El código fuente del proyecto se puede encontrar aquí: [project-manager](../source-code/dia-02/project-manager)
+Puedes obtener el código fuente de esta sesión en la siguiente ubicación:
 
+[project-manager | Día 02](../source-code/dia-02)
 ---
 
 ¡Felicidades! Has configurado Jakarta Persistence, definido tu unidad de persistencia y diseñado tus primeras entidades. Esto sienta las bases para almacenar y gestionar datos en tu Sistema de Gestión de Proyectos.

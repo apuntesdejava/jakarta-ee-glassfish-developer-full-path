@@ -28,7 +28,6 @@ public class User extends BaseEntity {
     @Size(max = 100, message = "El nombre completo no puede exceder 100 caracteres.")
     private String fullName;
 
-    // UN usuario tiene MUCHAS tareas asignadas.
     @OneToMany(mappedBy = "assignedUser", fetch = FetchType.LAZY)
     private Set<Task> assignedTasks = new HashSet<>();
 

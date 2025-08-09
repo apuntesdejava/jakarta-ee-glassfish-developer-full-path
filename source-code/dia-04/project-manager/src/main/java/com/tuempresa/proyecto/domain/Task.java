@@ -1,5 +1,6 @@
 package com.tuempresa.proyecto.domain;
 
+import jakarta.json.bind.annotation.JsonbTransient;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -34,6 +35,7 @@ public class Task extends BaseEntity {
     // Esta tarea pertenece a UN solo proyecto.
     @ManyToOne
     @JoinColumn(name = "project_id", nullable = false)
+    @JsonbTransient
     private Project project;
 
     // Esta tarea es asignada a UN solo usuario.

@@ -27,7 +27,7 @@ public class Project extends BaseEntity {
 
     // UN proyecto tiene MUCHAS tareas.
     // 'mappedBy' indica que la clave foránea está en la entidad Task
-    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private Set<Task> tasks = new HashSet<>();
 
     // Constructor vacío (requerido por Jakarta Persistence)

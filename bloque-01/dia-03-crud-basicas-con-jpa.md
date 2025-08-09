@@ -363,6 +363,12 @@ public class ProjectResource {
 
 Al realizar estas operaciones, el `EntityManager` gestionará las transacciones con la base de datos a través de nuestro Enterprise Bean `ProjectService`.
 
+## El código fuente
+
+Puedes obtener el código fuente de esta sesión en la siguiente ubicación:
+
+[project-manager | Día 03](../source-code/dia-03)
+
 ---
 
 ¡Excelente trabajo! Has implementado y probado las operaciones CRUD básicas para tus entidades Jakarta Persistence. Este es el corazón de la persistencia de datos en cualquier aplicación empresarial.
