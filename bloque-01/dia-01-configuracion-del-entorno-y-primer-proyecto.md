@@ -177,12 +177,16 @@ Una vez que el proyecto esté importado, es hora de desplegarlo en GlassFish.
 
 [![Watch the video](https://img.youtube.com/vi/hkt4kCL-LiA/default.jpg)](https://youtu.be/hkt4kCL-LiA)
 
+## Código Fuente
+
+El código fuente del proyecto se puede encontrar aquí: [project-manager](../source-code/dia-01/project-manager)
 
 ---
+
 ¡Felicidades! Has configurado tu entorno completo y has desplegado tu primera aplicación Jakarta EE en GlassFish. Este es un gran paso.
 
 Si encuentras algún problema en el camino, no dudes en preguntar.
 
-Mañana, en el Día 2, nos sumergiremos en el Diseño de Entidades y JPA Básico para nuestro Sistema de Gestión de Proyectos.
+Mañana, en el Día 2, nos sumergiremos en el Diseño de Entidades y Jakarta Persistence Básico para nuestro Sistema de Gestión de Proyectos.
 
 ¿Todo bien hasta ahora? ¿Pudiste ver el "Hello, World!"?
