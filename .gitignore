@@ -2,3 +2,5 @@
 **/mariadb_data
 **/nb-configuration.xml
 **/target
+**/node_modules
+**/package-lock.json
