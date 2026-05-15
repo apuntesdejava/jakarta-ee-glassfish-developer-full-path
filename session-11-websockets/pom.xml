@@ -13,7 +13,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.release>21</maven.compiler.release>
         <jakartaee-api.version>11.0.0</jakartaee-api.version>
-        <payara.version>7.2026.4</payara.version>
+        <payara.version>7.2026.5</payara.version>
         <payara.home>payara</payara.home>
     </properties>
     

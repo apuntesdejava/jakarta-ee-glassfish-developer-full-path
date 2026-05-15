@@ -246,6 +246,7 @@ Abre una terminal en la carpeta `payara7/bin` y ejecuta estos 2 comandos `asadmi
     ./asadmin create-jdbc-connection-pool \
         --datasourceclassname=org.postgresql.ds.PGPoolingDataSource \
         --restype=javax.sql.DataSource \
+        --ping=true \
         --property="URL=jdbc\:postgresql\://localhost\:5432/PROJECT_TRACKER:user=PROJECT_TRACKER:password=PROJECT_TRACKER" \
         ProjectTrackerPool
     ```
@@ -255,6 +256,7 @@ Abre una terminal en la carpeta `payara7/bin` y ejecuta estos 2 comandos `asadmi
     .\asadmin create-jdbc-connection-pool `
         --datasourceclassname="org.postgresql.ds.PGPoolingDataSource" `
         --restype="javax.sql.DataSource" `
+        --ping=true `
         --property="URL=jdbc\:postgresql\://localhost\:5432/PROJECT_TRACKER:user=PROJECT_TRACKER:password=PROJECT_TRACKER" `
         ProjectTrackerPool
     ```
