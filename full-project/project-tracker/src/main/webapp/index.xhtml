@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core">
+
+<h:head>
+    <title>Project Tracker - Jakarta EE 11</title>
+    <!-- Define los estilos base de la página, la tabla, el formulario y los estados visuales. -->
+    <style>
+        body { font-family: sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        h1 { color: #2c3e50; }
+        .table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        .table th, .table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        .table th { background-color: #f2f2f2; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input[type="text"], textarea { width: 100%; padding: 8px; box-sizing: border-box; }
+        .btn { background-color: #e67e22; color: white; padding: 10px 15px; border: none; cursor: pointer; }
+        .btn:hover { background-color: #d35400; }
+        .error { color: red; }
+    </style>
+</h:head>
+
+<h:body>
+    <h1>📋 Project Tracker</h1>
+
+    <!-- Agrupa el formulario que captura los datos necesarios para crear un proyecto. -->
+    <div style="background-color: #fafafa; padding: 20px; border-radius: 8px;">
+        <h3>Nuevo Proyecto</h3>
+
+        <h:form id="projectForm">
+            <!-- Muestra mensajes globales producidos por JSF o por la validación del formulario. -->
+            <h:messages globalOnly="true" styleClass="error" />
+
+            <div class="form-group">
+                <label>Nombre:</label>
+                <!-- Enlaza el campo de nombre con la propiedad mutable del bean JSF. -->
+                <h:inputText id="name" value="#{projectBean.formName}" required="true" requiredMessage="El nombre es obligatorio"/>
+                <h:message for="name" styleClass="error" />
+            </div>
+
+            <div class="form-group">
+                <label>Descripción:</label>
+                <h:inputTextarea id="desc" value="#{projectBean.formDescription}" rows="3" />
+            </div>
+
+            <!-- Ejecuta la acción del bean que persiste el proyecto y recarga la tabla. -->
+            <h:commandButton value="Guardar Proyecto" action="#{projectBean.createProjectFromForm}" styleClass="btn" />
+        </h:form>
+    </div>
+
+    <!-- Renderiza los proyectos actuales usando los datos cargados por el bean. -->
+    <h3>Proyectos Existentes</h3>
+
+    <!-- Itera sobre la lista de proyectos y genera una fila por cada DTO. -->
+    <h:dataTable value="#{projectBean.projects}" var="p" styleClass="table">
+
+        <h:column>
+            <f:facet name="header">ID</f:facet>
+            #{p.id()}
+        </h:column>
+
+        <h:column>
+            <f:facet name="header">Nombre</f:facet>
+            #{p.name()}
+        </h:column>
+
+        <h:column>
+            <f:facet name="header">Descripción</f:facet>
+            #{p.description()}
+        </h:column>
+
+        <h:column>
+            <f:facet name="header">Estado</f:facet>
+            <span style="padding: 4px 8px; background-color: #e1f5fe; border-radius: 4px;">
+                    #{p.status()}
+                </span>
+        </h:column>
+
+    </h:dataTable>
+
+    <script type="text/javascript">
+        /* Calcula la URL del WebSocket a partir del host y contexto actuales. */
+        var wsUrl = "ws://" + document.location.host + "#{request.contextPath}/ws/dashboard";
+        console.log("Conectando a: " + wsUrl);
+
+        /* Abre una conexión persistente para recibir proyectos creados por otros clientes. */
+        var socket = new WebSocket(wsUrl);
+
+        socket.onopen = function(event) {
+            console.log("WebSocket conectado!");
+        };
+
+        /* Procesa cada mensaje del servidor y lo incorpora a la tabla visible. */
+        socket.onmessage = function(event) {
+            console.log("Mensaje recibido: " + event.data);
+
+            var project = JSON.parse(event.data);
+
+            /* Localiza el cuerpo de la tabla generada por JSF usando la clase estable del componente. */
+            var table = document.querySelector(".table tbody");
+
+            if (table) {
+                /* Inserta la fila al final y la resalta brevemente para mostrar que llegó en tiempo real. */
+                var newRow = table.insertRow(-1);
+                newRow.style.backgroundColor = "#fff3cd";
+                setTimeout(() => newRow.style.backgroundColor = "transparent", 2000);
+
+                /* Crea las celdas en el mismo orden que las columnas del h:dataTable. */
+                var cellId = newRow.insertCell(0);
+                var cellName = newRow.insertCell(1);
+                var cellDesc = newRow.insertCell(2);
+                var cellStatus = newRow.insertCell(3);
+
+                cellId.textContent = project.id;
+                cellName.textContent = project.name;
+                cellDesc.textContent = project.description;
+
+                /* Mantiene el mismo formato visual para el estado que usa la tabla inicial. */
+                cellStatus.innerHTML = '<span style="padding: 4px 8px; background-color: #e1f5fe; border-radius: 4px;">' + project.status + '</span>';
+            }
+        };
+    </script>
+</h:body>
+</html>

@@ -20,8 +20,7 @@ Añade (o verifica) en tu `pom.xml`:
 ```xml
 <dependency>
     <groupId>jakarta.batch</groupId>
-    <artifactId>jakarta.batch-api</artifactId>
-    <version>2.1.1</version>
+    <artifactId>jakarta.batch-api</artifactId> 
     <scope>provided</scope>
 </dependency>
 ```

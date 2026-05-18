@@ -25,8 +25,7 @@ Antes que nada, debemos agregar la siguiente dependencia, ya que no viene incluÃ
 ```xml
 <dependency>
     <groupId>jakarta.jms</groupId>
-    <artifactId>jakarta.jms-api</artifactId>
-    <version>3.1.0</version>
+    <artifactId>jakarta.jms-api</artifactId> 
     <scope>provided</scope>
 </dependency>
 ```

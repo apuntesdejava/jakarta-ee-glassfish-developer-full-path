@@ -13,10 +13,10 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.release>21</maven.compiler.release>
         <jakartaee-api.version>11.0.0</jakartaee-api.version>
-        <payara.version>7.2026.5</payara.version>
-        <payara.home>payara</payara.home>
+     <!--   <payara.version>7.2026.5</payara.version>
+        <payara.home>payara</payara.home> -->
     </properties>
-    
+    <!--
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -27,25 +27,27 @@
                 <scope>import</scope>
             </dependency>
         </dependencies>
-    </dependencyManagement>
+    </dependencyManagement> -->
 
     <dependencies>
         <dependency>
             <groupId>jakarta.platform</groupId>
             <artifactId>jakarta.jakartaee-web-api</artifactId>
+            <version>11.0.0</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.eclipse.microprofile</groupId>
             <artifactId>microprofile</artifactId>
+            <version>6.1</version>
             <scope>provided</scope>
             <type>pom</type>
         </dependency>
-        <dependency>
+     <!--   <dependency>
             <groupId>fish.payara.api</groupId>
             <artifactId>payara-api</artifactId>
             <scope>provided</scope>
-        </dependency>
+        </dependency> -->
     </dependencies>
 
     <build>
@@ -64,7 +66,7 @@
                     <failOnMissingWebXml>false</failOnMissingWebXml>
                 </configuration>
             </plugin>
-            <!-- Execute 'mvn clean package payara-server:dev' to run the application. -->
+            <!-- Execute 'mvn clean package payara-server:dev' to run the application. 
             <plugin>
                     <groupId>fish.payara.maven.plugins</groupId>
                     <artifactId>payara-server-maven-plugin</artifactId>
@@ -72,10 +74,10 @@
                     <configuration>
                         <payaraServerVersion>${payara.version}</payaraServerVersion>
                     </configuration>
-            </plugin>
+            </plugin> -->
         </plugins>
     </build>
-    
+    <!--
     <repositories>
         <repository>
             <id>payara-nexus-artifacts</id>
@@ -88,7 +90,7 @@
             </snapshots>
         </repository>
     </repositories>
-    
+    -->
     
     <profiles>
     </profiles>

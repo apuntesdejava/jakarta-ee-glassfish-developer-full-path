@@ -1,0 +1,15 @@
+services:
+  db:
+    image: mysql:9.7
+    container_name: project_tracker_mysql_db
+    environment:
+        MYSQL_ROOT_PASSWORD: PROJECT_TRACKER
+        MYSQL_DATABASE: PROJECT_TRACKER
+        MYSQL_USER: PROJECT_TRACKER
+        MYSQL_PASSWORD: PROJECT_TRACKER
+    ports:
+      - "3306:3306" # Map host port 3306 to container port 3306
+    volumes:
+      - mysql_data:/var/lib/mysql # Persist data in a named volume
+volumes:
+  mysql_data:
