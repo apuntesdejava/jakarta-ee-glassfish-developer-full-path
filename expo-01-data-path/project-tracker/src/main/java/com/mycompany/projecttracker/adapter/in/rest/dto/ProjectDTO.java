@@ -1,4 +1,4 @@
-package com.mycompany.projecttracker.model;
+package com.mycompany.projecttracker.adapter.in.rest.dto;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -23,5 +23,4 @@ public record ProjectDTO(
 
     String status
 ) {
-    // La validación vive en los componentes del record para que el contrato sea explícito.
 }

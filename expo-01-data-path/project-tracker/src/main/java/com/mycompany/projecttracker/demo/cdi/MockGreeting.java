@@ -1,7 +1,5 @@
-package com.mycompany.projecttracker.service.impl;
+package com.mycompany.projecttracker.demo.cdi;
 
-import com.mycompany.projecttracker.service.GreetingService;
-import com.mycompany.projecttracker.service.qualifier.GreetingType;
 import jakarta.enterprise.context.ApplicationScoped;
 
 /**
@@ -18,7 +16,6 @@ public class MockGreeting implements GreetingService {
      */
     @Override
     public String greet(String name) {
-        // Esta implementación alternativa permite comprobar que CDI inyecta el bean correcto.
         return "Modo de prueba: Hola " + name;
     }
 }

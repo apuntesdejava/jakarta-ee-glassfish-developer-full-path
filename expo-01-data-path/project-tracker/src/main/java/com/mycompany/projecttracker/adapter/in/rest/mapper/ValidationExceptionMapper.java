@@ -1,4 +1,4 @@
-package com.mycompany.projecttracker.rest.mapper;
+package com.mycompany.projecttracker.adapter.in.rest.mapper;
 
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
@@ -23,13 +23,10 @@ public class ValidationExceptionMapper implements ExceptionMapper<ConstraintViol
      */
     @Override
     public Response toResponse(ConstraintViolationException exception) {
-
-        // Cada violación se reduce a un mensaje simple para no exponer detalles internos del runtime.
         List<String> errors = exception.getConstraintViolations().stream()
             .map(this::formatError)
             .toList();
 
-        // El cuerpo mantiene un mensaje general y una lista concreta para consumo humano o automatizado.
         Map<String, Object> responseBody = Map.of(
             "message", "La petición tiene errores de validación",
             "errors", errors
@@ -50,7 +47,6 @@ public class ValidationExceptionMapper implements ExceptionMapper<ConstraintViol
         String field = violation.getPropertyPath().toString();
         String message = violation.getMessage();
 
-        // El path puede venir como "createProject.arg0.name"; para el cliente basta el último segmento.
         String[] parts = field.split("\\.");
         if (parts.length > 0) {
             field = parts[parts.length - 1];

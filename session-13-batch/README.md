@@ -83,7 +83,7 @@ package com.mycompany.projecttracker.batch;
 import com.mycompany.projecttracker.entity.AuditInfo;
 import com.mycompany.projecttracker.entity.Project;
 import com.mycompany.projecttracker.entity.Task;
-import com.mycompany.projecttracker.repository.ProjectRepository;
+import com.mycompany.projecttracker.data.repository.ProjectDataRepository;
 import jakarta.batch.api.chunk.ItemProcessor;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;

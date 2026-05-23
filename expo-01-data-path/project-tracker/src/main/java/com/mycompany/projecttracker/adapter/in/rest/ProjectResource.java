@@ -1,7 +1,8 @@
-package com.mycompany.projecttracker.rest;
+package com.mycompany.projecttracker.adapter.in.rest;
 
-import com.mycompany.projecttracker.model.ProjectDTO;
-import com.mycompany.projecttracker.service.ProjectService;
+import com.mycompany.projecttracker.adapter.in.rest.dto.ProjectDTO;
+import com.mycompany.projecttracker.adapter.in.rest.mapper.ProjectRestMapper;
+import com.mycompany.projecttracker.application.port.in.ProjectUseCase;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
@@ -20,7 +21,7 @@ import java.net.URI;
 import java.util.List;
 
 /**
- * REST resource that exposes project operations over HTTP.
+ * REST adapter that exposes project operations over HTTP.
  */
 @Path("/projects")
 @Produces(MediaType.APPLICATION_JSON)
@@ -28,10 +29,16 @@ import java.util.List;
 public class ProjectResource {
 
     /**
-     * Application service that owns project business logic.
+     * Input port that owns project use cases.
      */
     @Inject
-    private ProjectService projectService;
+    private ProjectUseCase projectUseCase;
+
+    /**
+     * Mapper that translates between REST DTOs and application models.
+     */
+    @Inject
+    private ProjectRestMapper mapper;
 
     /**
      * Request URI information used to build Location headers.
@@ -49,11 +56,14 @@ public class ProjectResource {
     public Response getProjects(@QueryParam("status") String status) {
         List<ProjectDTO> projects;
 
-        // Si llega un filtro, la consulta se delega al método derivado de Jakarta Data.
         if (status != null && !status.isBlank()) {
-            projects = projectService.findByStatus(status);
+            projects = projectUseCase.findByStatus(status).stream()
+                .map(mapper::toDTO)
+                .toList();
         } else {
-            projects = projectService.findAll();
+            projects = projectUseCase.findAll().stream()
+                .map(mapper::toDTO)
+                .toList();
         }
 
         return Response.ok(projects).build();
@@ -68,8 +78,8 @@ public class ProjectResource {
     @GET
     @Path("/{id}")
     public Response getProjectById(@PathParam("id") Long id) {
-        // Optional permite expresar el caso "no encontrado" sin condicionales auxiliares.
-        return projectService.findById(id)
+        return projectUseCase.findById(id)
+            .map(mapper::toDTO)
             .map(project -> Response.ok(project).build())
             .orElse(Response.status(Response.Status.NOT_FOUND).build());
     }
@@ -82,10 +92,10 @@ public class ProjectResource {
      */
     @POST
     public Response createProject(@Valid ProjectDTO projectRequest) {
-        // Jakarta Validation ya verificó las reglas declaradas en ProjectDTO antes de entrar aquí.
-        ProjectDTO newProject = projectService.create(projectRequest);
+        ProjectDTO newProject = mapper.toDTO(
+            projectUseCase.create(mapper.toCommand(projectRequest))
+        );
 
-        // La URI del recurso creado queda disponible para clientes REST bien comportados.
         URI location = uriInfo.getAbsolutePathBuilder().path(String.valueOf(newProject.id())).build();
         return Response.created(location).entity(newProject).build();
     }

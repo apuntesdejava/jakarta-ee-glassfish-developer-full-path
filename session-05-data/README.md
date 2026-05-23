@@ -65,7 +65,7 @@ import com.mycompany.projecttracker.entity.AuditInfo;
 import com.mycompany.projecttracker.entity.Project;
 import com.mycompany.projecttracker.mapper.ProjectMapper;
 import com.mycompany.projecttracker.model.ProjectDTO;
-import com.mycompany.projecttracker.repository.ProjectRepository; // <-- Importar Repositorio
+import com.mycompany.projecttracker.data.repository.ProjectDataRepository; // <-- Importar Repositorio
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;

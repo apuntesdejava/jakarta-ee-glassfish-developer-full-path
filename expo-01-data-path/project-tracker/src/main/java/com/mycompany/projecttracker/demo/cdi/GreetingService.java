@@ -1,4 +1,4 @@
-package com.mycompany.projecttracker.service;
+package com.mycompany.projecttracker.demo.cdi;
 
 /**
  * Contract for greeting implementations selected through CDI qualifiers.

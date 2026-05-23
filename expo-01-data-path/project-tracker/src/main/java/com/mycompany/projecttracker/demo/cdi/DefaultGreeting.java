@@ -1,7 +1,5 @@
-package com.mycompany.projecttracker.service.impl;
+package com.mycompany.projecttracker.demo.cdi;
 
-import com.mycompany.projecttracker.service.GreetingService;
-import com.mycompany.projecttracker.service.qualifier.GreetingType;
 import jakarta.enterprise.context.ApplicationScoped;
 
 /**
@@ -18,7 +16,6 @@ public class DefaultGreeting implements GreetingService {
      */
     @Override
     public String greet(String name) {
-        // Esta implementación representa el bean principal elegido por el qualifier "default".
         return "Hello %s !".formatted(name);
     }
 }

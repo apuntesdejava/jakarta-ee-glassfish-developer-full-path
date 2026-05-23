@@ -1,6 +1,15 @@
-package com.mycompany.projecttracker.entity;
+package com.mycompany.projecttracker.domain.model;
 
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
@@ -72,7 +81,6 @@ public class Project {
      * @param task the task to attach to this project
      */
     public void addTask(Task task) {
-        // La lista y la referencia inversa se actualizan juntas para evitar relaciones inconsistentes.
         tasks.add(task);
         task.setProject(this);
     }
@@ -83,7 +91,6 @@ public class Project {
      * @param task the task to detach from this project
      */
     public void removeTask(Task task) {
-        // Al limpiar la referencia inversa, orphanRemoval puede eliminar la fila asociada.
         tasks.remove(task);
         task.setProject(null);
     }

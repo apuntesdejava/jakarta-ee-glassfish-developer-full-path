@@ -1,4 +1,4 @@
-package com.mycompany.projecttracker.entity;
+package com.mycompany.projecttracker.domain.model;
 
 import jakarta.persistence.Embeddable;
 import java.time.LocalDate;
@@ -18,7 +18,6 @@ public record AuditInfo(
      * Creates an empty audit object required by Jakarta Persistence.
      */
     public AuditInfo() {
-        // JPA necesita un constructor sin argumentos para reconstruir el embeddable.
         this(null, null);
     }
 }

@@ -1,7 +1,5 @@
-package com.mycompany.resource;
+package com.mycompany.projecttracker.demo.cdi;
 
-import com.mycompany.projecttracker.service.GreetingService;
-import com.mycompany.projecttracker.service.qualifier.GreetingType;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.GET;
@@ -37,7 +35,6 @@ public class HelloWorldResource {
      */
     @GET
     public Response hello(@QueryParam("name") @DefaultValue("world") String name) {
-        // La lógica HTTP queda mínima: elegir el servicio ya lo resolvió CDI por qualifier.
         return Response
             .ok(greetingService.greet(name))
             .build();
@@ -52,11 +49,8 @@ public class HelloWorldResource {
     @GET
     @Path("mock")
     public Response helloMock(@QueryParam("name") @DefaultValue("world") String name) {
-        // Este endpoint usa el mismo contrato, pero permite mostrar otra implementación CDI.
         return Response
             .ok(greetingMockService.greet(name))
             .build();
     }
-
-
 }

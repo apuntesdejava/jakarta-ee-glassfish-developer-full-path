@@ -1,7 +1,7 @@
-package com.mycompany.projecttracker.repository;
+package com.mycompany.projecttracker.adapter.out.persistence.jakarta;
 
-import com.mycompany.projecttracker.entity.Project;
-import jakarta.data.repository.BasicRepository;
+import com.mycompany.projecttracker.domain.model.Project;
+import jakarta.data.repository.CrudRepository;
 import jakarta.data.repository.Repository;
 import java.util.List;
 
@@ -9,7 +9,7 @@ import java.util.List;
  * Jakarta Data repository that provides persistence operations for projects.
  */
 @Repository
-public interface ProjectRepository extends BasicRepository<Project, Long> {
+public interface ProjectDataRepository extends CrudRepository<Project, Long> {
 
     /**
      * Finds projects that match the given lifecycle status.
