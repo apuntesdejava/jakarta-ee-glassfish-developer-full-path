@@ -1,32 +1,33 @@
-FROM payara/server-full:7.2026.5
-# 1. Copiar la App
-COPY target/project-tracker.war $DEPLOY_DIR
+FROM ghcr.io/eclipse-ee4j/glassfish:latest
 
-# 2. Copiar el Script de configuración
-COPY post-boot-commands.asadmin $POSTBOOT_COMMANDS
+ENV PATH_GF_HOME=/opt/gfinstall
+ENV DEPLOY_DIR=${PATH_GF_HOME}/glassfish/domains/domain1/autodeploy
+ENV CUSTOM_DIR=${PATH_GF_HOME}/custom
+ENV APP_WAR=${CUSTOM_DIR}/project-tracker.war
+ENV INIT_SH=${CUSTOM_DIR}/init.sh
 
-# -----------------------------------------------------------
-# 3. DESCARGA AUTOMÁTICA DEL DRIVER JDBC
-# -----------------------------------------------------------
-
-# Cambiamos a root para tener permisos de escritura y descarga
 USER root
 
-# Definimos la versión que queremos (para cambiarla fácil en el futuro)
-ENV PG_VERSION=42.7.8
+# 1. Preparar la carpeta que ejecuta el entrypoint oficial de GlassFish
+RUN mkdir -p ${CUSTOM_DIR}
 
-# Usamos ADD para bajar el JAR directo de Maven Central a la carpeta de librerías
-ADD https://repo1.maven.org/maven2/org/postgresql/postgresql/${PG_VERSION}/postgresql-${PG_VERSION}.jar \
-    /opt/payara/appserver/glassfish/domains/domain1/lib/postgresql.jar
+# 2. Copiar la aplicación fuera de autodeploy hasta que existan los recursos JDBC
+COPY target/project-tracker.war ${APP_WAR}
 
-# IMPORTANTE: Al bajarlo con ADD, el archivo queda como propiedad de 'root'.
-# Payara corre como usuario 'payara', así que debemos cambiar el dueño
-# para asegurarnos de que el servidor pueda leerlo sin problemas.
-RUN chown payara:payara /opt/payara/appserver/glassfish/domains/domain1/lib/postgresql.jar
+# 3. Copiar el script de inicialización que prepara GlassFish antes del arranque final
+COPY docker-init.sh ${INIT_SH}
 
-# Volvemos al usuario payara para que el contenedor corra de forma segura
-USER payara
+ENV MYSQL_CONNECTOR_VERSION=9.7.0
 
-# -----------------------------------------------------------
+# 4. Descargar el driver JDBC de MySQL y dejarlo disponible para GlassFish
+ADD https://repo1.maven.org/maven2/com/mysql/mysql-connector-j/${MYSQL_CONNECTOR_VERSION}/mysql-connector-j-${MYSQL_CONNECTOR_VERSION}.jar \
+    ${PATH_GF_HOME}/glassfish/domains/domain1/lib/mysql-connector-j.jar
+
+RUN chown glassfish:glassfish \
+    ${APP_WAR} \
+    ${INIT_SH} \
+    ${PATH_GF_HOME}/glassfish/domains/domain1/lib/mysql-connector-j.jar
+
+USER glassfish
 
 EXPOSE 8080 4848

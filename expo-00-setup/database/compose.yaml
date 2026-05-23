@@ -11,5 +11,73 @@ services:
       - "3306:3306" # Map host port 3306 to container port 3306
     volumes:
       - mysql_data:/var/lib/mysql # Persist data in a named volume
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: project_tracker_prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--web.enable-lifecycle"
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./observability/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    depends_on:
+      - db
+
+  blackbox:
+    image: prom/blackbox-exporter:latest
+    container_name: project_tracker_blackbox
+    command:
+      - "--config.file=/etc/blackbox_exporter/config.yml"
+    ports:
+      - "9115:9115"
+    volumes:
+      - ./observability/blackbox/config.yml:/etc/blackbox_exporter/config.yml:ro
+
+  loki:
+    image: grafana/loki:latest
+    container_name: project_tracker_loki
+    command:
+      - "-config.file=/etc/loki/local-config.yaml"
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./observability/loki/local-config.yaml:/etc/loki/local-config.yaml:ro
+      - loki_data:/loki
+
+  promtail:
+    image: grafana/promtail:latest
+    container_name: project_tracker_promtail
+    command:
+      - "-config.file=/etc/promtail/config.yml"
+    volumes:
+      - ./observability/promtail/config.yml:/etc/promtail/config.yml:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+    depends_on:
+      - loki
+
+  grafana:
+    image: grafana/grafana-oss:latest
+    container_name: project_tracker_grafana
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./observability/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./observability/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    depends_on:
+      - prometheus
+      - loki
+
 volumes:
   mysql_data:
+  prometheus_data:
+  grafana_data:
+  loki_data:

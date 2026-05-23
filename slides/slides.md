@@ -3,7 +3,7 @@ theme: nord
 title: Jakarta EE 11 en 45 minutos
 info: |
   Una charla sobre construir una aplicación empresarial completa con Java,
-  Jakarta EE 11 y Payara, organizada en tres actos: dato, experiencia y producción.
+  Jakarta EE 11 y GlassFish 8, organizada en tres actos: dato, experiencia y producción.
 colorSchema: dark
 highlighter: shiki
 lineNumbers: true
@@ -15,7 +15,7 @@ mdc: true
 
 # Jakarta EE 11 en 45 minutos
 
-## De cero a una aplicación empresarial completa con Java y Payara
+## De cero a una aplicación empresarial completa con Java y GlassFish 8
 
 JConf - ProjectTracker
 
@@ -43,7 +43,7 @@ ProjectTracker:
 - Eventos en tiempo real
 - Procesos asíncronos
 - Observabilidad
-- Despliegue con Payara
+- Despliegue con GlassFish 8
 
 [Repositorio del tutorial](../README.md)
 
@@ -295,12 +295,13 @@ Sesiones:
 
 # Observabilidad
 
-Payara integra MicroProfile para operar la aplicación:
+GlassFish 8 integra MicroProfile para operar la aplicación:
 
 - Health
 - Readiness
-- Metrics
-- Endpoints compatibles con plataformas cloud
+- Métricas Prometheus de la app
+- Logs con Loki
+- Prometheus + Loki + Grafana como visor local
 
 [Sesión 12: Health & Metrics](../session-12-health/README.md)
 
@@ -308,15 +309,15 @@ Payara integra MicroProfile para operar la aplicación:
 
 # Despliegue
 
-Dos formas de llevarlo a producción:
+Una forma reproducible de llevarlo a producción:
 
-- Payara Server en contenedor
-- Payara Micro como runtime ligero
+- GlassFish 8 en contenedor
+- MySQL como dependencia externa
+- Stack O11Y local en Docker Compose
 
-Sesiones:
+Referencia:
 
-- [Sesión 14: Docker + Payara Server](../session-14-container/README.md)
-- [Sesión 15: Payara Micro](../session-15-payaramicro/README.md)
+- [Expo 03: Docker + GlassFish 8 + MySQL](../expo-03-prod-path/project-tracker/README.md)
 
 ---
 
@@ -330,7 +331,9 @@ Mostrar:
 - Logs mostrando `VirtualThread`
 - `/health`
 - `/metrics`
-- Empaquetado con Payara Micro
+- Empaquetado con GlassFish 8 + MySQL
+- Dashboard local de O11Y
+- Logs centralizados con Loki
 
 Mensaje:
 

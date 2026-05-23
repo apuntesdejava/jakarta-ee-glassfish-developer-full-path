@@ -1,0 +1,33 @@
+global:
+  scrape_interval: 5s
+  evaluation_interval: 5s
+
+scrape_configs:
+  - job_name: prometheus
+    static_configs:
+      - targets:
+          - localhost:9090
+
+  - job_name: project-tracker-metrics
+    metrics_path: /project-tracker/resources/observability/metrics
+    static_configs:
+      - targets:
+          - project-tracker-container:8080
+
+  - job_name: project-tracker-readiness
+    metrics_path: /probe
+    params:
+      module:
+        - http_2xx
+    static_configs:
+      - targets:
+          - http://project-tracker-container:8080/health/ready
+    relabel_configs:
+      - source_labels:
+          - __address__
+        target_label: __param_target
+      - source_labels:
+          - __param_target
+        target_label: instance
+      - target_label: __address__
+        replacement: project_tracker_blackbox:9115

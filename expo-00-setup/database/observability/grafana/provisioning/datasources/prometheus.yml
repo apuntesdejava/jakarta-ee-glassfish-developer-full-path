@@ -1,0 +1,16 @@
+apiVersion: 1
+
+datasources:
+  - name: Prometheus
+    uid: Prometheus
+    type: prometheus
+    access: proxy
+    url: http://project_tracker_prometheus:9090
+    isDefault: true
+    editable: true
+  - name: Loki
+    uid: Loki
+    type: loki
+    access: proxy
+    url: http://project_tracker_loki:3100
+    editable: true

@@ -2,7 +2,7 @@
 
 ## Objetivo de la charla
 
-Presentar Jakarta EE 11 con Payara como una plataforma moderna para construir una aplicacion empresarial completa con Java 21, sin recorrer todo el tutorial carpeta por carpeta.
+Presentar Jakarta EE 11 con GlassFish 8 como una plataforma moderna para construir una aplicacion empresarial completa con Java 21, sin recorrer todo el tutorial carpeta por carpeta.
 
 La idea central no es decir que React, Angular u otras herramientas no sirven. La idea es mostrar que muchas aplicaciones empresariales pueden resolverse muy bien dentro del estandar, sin traer piezas adicionales por reflejo.
 
@@ -28,7 +28,7 @@ Esta charla no es un tour API por API de Jakarta EE. Eso no cabe en 45 minutos y
 
 La pregunta que quiero responder es:
 
-> Si hoy tengo que construir una aplicacion empresarial completa con Java 21, Jakarta EE 11 y Payara, cuanto puedo resolver dentro de la plataforma antes de traer herramientas externas por costumbre?
+> Si hoy tengo que construir una aplicacion empresarial completa con Java 21, Jakarta EE 11 y GlassFish 8, cuanto puedo resolver dentro de la plataforma antes de traer herramientas externas por costumbre?
 
 ### Guion sugerido
 
@@ -256,13 +256,15 @@ La idea no es usar todo siempre. La idea es tener opciones estandar para distint
 
 #### Mensaje
 
-Payara complementa Jakarta EE con MicroProfile para operar la aplicacion.
+GlassFish 8 complementa Jakarta EE con MicroProfile para operar la aplicacion.
 
 #### Guion sugerido
 
-“Para operar la aplicacion, Payara integra MicroProfile.
+“Para operar la aplicacion, GlassFish 8 integra MicroProfile.
 
-Health, readiness y metrics permiten que la aplicacion hable el idioma de plataformas cloud: probes, metricas y estado observable.
+Health, readiness y metricas en formato Prometheus permiten que la aplicacion hable el idioma de plataformas cloud: probes, metricas y estado observable.
+
+Y para cerrar el ciclo, puedo conectar esos endpoints a un stack local con Prometheus, Loki y Grafana. No es solo imprimir JSON en el navegador; es ver la aplicacion desde afuera, como la veria una plataforma de operacion: salud, metricas y logs en un mismo lugar.
 
 Esto importa porque produccion no es solamente empaquetar un WAR. Produccion es saber si la aplicacion esta viva, lista y comportandose como esperamos.”
 
@@ -270,15 +272,15 @@ Esto importa porque produccion no es solamente empaquetar un WAR. Produccion es 
 
 #### Mensaje
 
-Payara ofrece caminos distintos segun el tipo de despliegue.
+GlassFish 8 ofrece un camino claro para desplegar la aplicación como contenedor.
 
 #### Guion sugerido
 
 “Finalmente, despliegue.
 
-Puedo usar Payara Server en contenedor cuando necesito el servidor completo y una configuracion mas tradicional.
+Puedo empaquetar el WAR sobre una imagen de GlassFish 8, descargar el driver MySQL en la imagen y crear el pool JDBC por `asadmin` usando variables de entorno.
 
-O puedo usar Payara Micro cuando quiero un runtime mas ligero, auto-contenido y orientado a contenedores.”
+La cereza no es solo que corre en Docker: es que la configuración queda reproducible y observable.”
 
 ### Demo 3 - 40:00 a 42:00
 
@@ -288,11 +290,13 @@ O puedo usar Payara Micro cuando quiero un runtime mas ligero, auto-contenido y 
 - Logs mostrando `VirtualThread`
 - `/health`
 - `/metrics`
-- Empaquetado con Payara Micro, si esta listo
+- Empaquetado con GlassFish 8 + MySQL, si esta listo
+- Grafana mostrando readiness y metricas personalizadas
+- Loki mostrando logs del contenedor
 
 #### Cierre de demo
 
-“La plataforma no termina en escribir endpoints. Tambien cubre concurrencia, operacion y despliegue.”
+“La plataforma no termina en escribir endpoints. Tambien cubre concurrencia, operacion, despliegue y señales para observarla.”
 
 ## Cierre - 42:00 a 45:00
 
@@ -306,7 +310,7 @@ La decision madura no es SPA siempre ni server-side siempre. La decision madura 
 
 Cuando aportan valor real: interaccion altamente dinamica, estado complejo en cliente, equipos frontend especializados, ecosistemas de componentes ya adoptados o productos publicos con una experiencia muy rica.
 
-Pero cuando hablamos de aplicaciones internas, administrativas, transaccionales, con seguridad fuerte, formularios, tablas y equipos Java full-stack, Jakarta EE 11 con Payara sigue siendo una alternativa muy competitiva.
+Pero cuando hablamos de aplicaciones internas, administrativas, transaccionales, con seguridad fuerte, formularios, tablas y equipos Java full-stack, Jakarta EE 11 con GlassFish 8 sigue siendo una alternativa muy competitiva.
 
 Mi cierre es este: Jakarta EE 11 no es una coleccion de APIs viejas.
 
@@ -320,7 +324,7 @@ Si notas que estas excediendo el tiempo, recorta en este orden:
 
 1. Demo de WebSocket.
 2. Detalle de Batch.
-3. Detalle de Payara Micro.
+3. Detalle del contenedor GlassFish/MySQL.
 4. Comparacion React/Angular.
 
 No recortes demasiado Jakarta Data ni Concurrency con Virtual Threads. Para una audiencia experta en Java, esos son dos de los momentos mas importantes porque muestran Jakarta EE 11 como una plataforma actual.
@@ -335,4 +339,3 @@ No recortes demasiado Jakarta Data ni Concurrency con Virtual Threads. Para una 
 - “Java moderno, si, pero dentro de un runtime empresarial.”
 - “Produccion no es solamente empaquetar un WAR.”
 - “La decision madura no es SPA siempre ni server-side siempre. Es elegir con criterio.”
-
